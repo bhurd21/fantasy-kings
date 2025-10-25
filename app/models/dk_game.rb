@@ -1,5 +1,7 @@
 class DkGame < ApplicationRecord
   enum :sport, { nfl: 0, ncaaf: 1 }
+  
+  has_many :betting_histories, dependent: :nullify
 
   validates :unique_id, presence: true, uniqueness: true
   validates :sport, presence: true

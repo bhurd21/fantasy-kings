@@ -107,11 +107,15 @@
       <% end %>
     </div>
 
-    <div class="confirm-section<%=' hidden' unless params[:selected_bet].present? %>" id="confirm-section">
-      <%= form.submit "Confirm →", class: "confirm-button#{' active' if params[:selected_bet].present?}", id: "confirm-bet-button", disabled: params[:selected_bet].blank? %>
+    <div class="confirm-section hidden" id="confirm-section">
+      <%= form.submit "Confirm →", class: "confirm-button", id: "confirm-bet-button", disabled: true %>
     </div>
   </div>
 <% end %>
+
+<div class="navigation-links">
+  <%= link_to "View Betting History", betting_histories_path, class: "history-link" %>
+</div>
 
 <style>
   body {
@@ -365,6 +369,21 @@
   }
 
   .hidden { display: none; }
+
+  .navigation-links {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .history-link {
+    color: #4d9640;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .history-link:hover {
+    text-decoration: underline;
+  }
 
 </style>
 

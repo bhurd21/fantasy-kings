@@ -24,27 +24,68 @@ class HomeController < ApplicationController
   def create_bet
     selected_bet = params[:selected_bet]
     
-    if selected_bet.present?
-      # Parse the bet selection (format: "game_id_bet_type")
-      game_id, bet_type = selected_bet.split('_', 2)
-      game = DkGame.find_by(id: game_id)
-      
-      if game
-        # For now, just log the bet submission
-        Rails.logger.info "BET SUBMISSION - User: #{current_user.name} (#{current_user.id}), Game: #{game.home_team} vs #{game.away_team}, Bet: #{bet_type}, Time: #{Time.current}"
-        
-        flash[:notice] = "Bet submitted successfully! (#{bet_type} for #{game.home_team} vs #{game.away_team}; #{game.inspect})"
-      else
-        flash[:alert] = "Game not found"
-      end
-    else
+    if selected_bet.blank?
       flash[:alert] = "Please select a bet before confirming"
+      redirect_to root_path
+      return
+    end
+    
+    # Parse the bet selection (format: "game_id_bet_type")
+    game_id, bet_type = selected_bet.split('_', 2)
+    game = DkGame.find_by(id: game_id)
+    
+    unless game
+      flash[:alert] = "Game not found"
+      redirect_to root_path
+      return
+    end
+    
+    # Get the line value based on bet type
+    line_value = get_line_value(game, bet_type)
+    
+    # Create betting history record with default stake of 0
+    betting_history = current_user.betting_histories.build(
+      dk_game: game,
+      bet_type: bet_type,
+      line_value: line_value,
+      total_stake: 0.0,
+      result: :pending
+    )
+    
+    if betting_history.save
+      flash[:notice] = "Bet submitted successfully! #{betting_history.formatted_description}"
+    else
+      flash[:alert] = "Error submitting bet: #{betting_history.errors.full_messages.join(', ')}"
     end
     
     redirect_to root_path
   end
 
   private
+
+  def get_line_value(game, bet_type)
+    case bet_type
+    when 'home_winner'
+      game.home_moneyline
+    when 'away_winner'
+      game.away_moneyline
+    when 'home_spread'
+      game.home_spread_price
+    when 'away_spread'
+      game.away_spread_price
+    when 'total_over'
+      game.over_price
+    when 'total_under'
+      game.under_price
+    else
+      nil
+    end
+  end
+
+  def format_currency(amount)
+    return "$0.00" if amount.nil?
+    "$#{sprintf('%.2f', amount)}"
+  end
 
   def format_spread(spread)
     return nil if spread.nil?

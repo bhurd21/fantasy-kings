@@ -16,6 +16,7 @@ Rails.application.routes.draw do
 
   # Betting routes
   post "bets", to: "home#create_bet"
+  resources :betting_histories, only: [:index, :show, :create, :update]
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

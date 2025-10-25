@@ -10,7 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_25_170000) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_25_192541) do
+  create_table "betting_histories", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "dk_game_id"
+    t.integer "nfl_week"
+    t.string "bet_type", null: false
+    t.text "bet_description"
+    t.string "line_value"
+    t.decimal "total_stake", precision: 10, scale: 2
+    t.integer "result", default: 0
+    t.decimal "return_amount", precision: 10, scale: 2, default: "0.0"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dk_game_id"], name: "index_betting_histories_on_dk_game_id"
+    t.index ["nfl_week"], name: "index_betting_histories_on_nfl_week"
+    t.index ["result"], name: "index_betting_histories_on_result"
+    t.index ["user_id", "created_at"], name: "index_betting_histories_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_betting_histories_on_user_id"
+  end
+
   create_table "dk_games", force: :cascade do |t|
     t.integer "sport", default: 0, null: false
     t.datetime "commence_time"
@@ -40,4 +60,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_25_170000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "betting_histories", "dk_games"
+  add_foreign_key "betting_histories", "users"
 end

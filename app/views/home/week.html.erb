@@ -5,19 +5,21 @@
 <div class="bets-list">
   <% if @betting_histories.any? %>
     <% @betting_histories.each do |bet| %>
-      <div class="bet-item">
-        <div class="bet-user"><%= bet.user.name %></div>
-        <div class="bet-details">
-          <%= bet.formatted_description %>
+      <%= link_to user_profile_path(bet.user), class: "bet-item-link" do %>
+        <div class="bet-item">
+          <div class="bet-user"><%= bet.user.name %></div>
+          <div class="bet-details">
+            <%= bet.formatted_description %>
+          </div>
+          <div class="bet-footer">
+            <span class="bet-line"><%= bet.formatted_line %></span>
+            <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+            <span class="bet-result <%= bet.result %>">
+              <%= bet.result.humanize %>
+            </span>
+          </div>
         </div>
-        <div class="bet-footer">
-          <span class="bet-line"><%= bet.formatted_line %></span>
-          <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
-          <span class="bet-result <%= bet.result %>">
-            <%= bet.result.humanize %>
-          </span>
-        </div>
-      </div>
+      <% end %>
     <% end %>
   <% else %>
     <div class="empty-state">No bets placed for this week yet.</div>
@@ -48,11 +50,22 @@
     padding: 16px;
   }
 
+  .bet-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 12px;
+    transition: transform 0.2s;
+  }
+
+  .bet-item-link:active {
+    transform: scale(0.98);
+  }
+
   .bet-item {
     background: #1a1a1a;
     border-radius: 8px;
     padding: 16px;
-    margin-bottom: 12px;
   }
 
   .bet-user {

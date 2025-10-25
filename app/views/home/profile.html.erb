@@ -1,5 +1,5 @@
 <div class="header">
-  <h1><%= current_user.name %></h1>
+  <h1><%= @user.name %></h1>
   <%= link_to "Logout", logout_path, class: "logout-btn" %>
 </div>
 
@@ -28,7 +28,7 @@
     <% @betting_histories.each do |bet| %>
       <div class="history-item">
         <div class="history-header">
-          <span class="history-date"><%= bet.created_at.strftime('%m/%d') %></span>
+          <span class="history-date"><%= bet.created_at.in_time_zone(Time.zone).strftime('%m/%d') %></span>
           <span class="history-week">Week <%= bet.nfl_week %></span>
           <span class="bet-result <%= bet.result %>"><%= bet.result.humanize %></span>
         </div>

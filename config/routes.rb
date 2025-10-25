@@ -13,10 +13,13 @@ Rails.application.routes.draw do
 
   # Betting
   post "bets", to: "home#create_bet"
+  get "weekly_budget/:week", to: "home#weekly_budget", as: :weekly_budget
+  patch "betting_histories/:id/update_result", to: "home#update_bet_result", as: :update_bet_result
   
   # Mobile nav routes
   get "week/:week", to: "home#week", as: :week
   get "profile", to: "home#profile"
+  get "users/:id", to: "home#user_profile", as: :user_profile
   get "settings", to: "home#settings"
 
   get "up" => "rails/health#show", as: :rails_health_check

@@ -43,8 +43,15 @@ class HomeController < ApplicationController
       return
     end
     
-    if stake <= 0
-      flash[:alert] = "Please enter a valid stake amount"
+    # Validate stake amount
+    if stake < User::MIN_BET
+      flash[:alert] = "Minimum bet is $#{User::MIN_BET}"
+      redirect_to root_path
+      return
+    end
+    
+    if stake > User::MAX_BET
+      flash[:alert] = "Maximum bet is $#{User::MAX_BET}"
       redirect_to root_path
       return
     end
@@ -71,6 +78,16 @@ class HomeController < ApplicationController
       result: :pending
     )
     
+    # Check weekly budget
+    week = betting_history.nfl_week || betting_history.send(:calculate_current_nfl_week)
+    budget_remaining = current_user.weekly_budget_remaining(week)
+    
+    if stake > budget_remaining
+      flash[:alert] = "Insufficient weekly budget. You have $#{sprintf('%.2f', budget_remaining)} remaining for week #{week}."
+      redirect_to root_path
+      return
+    end
+    
     if betting_history.save
       flash[:notice] = "Bet submitted successfully! #{betting_history.formatted_description} - Stake: #{format_currency(stake)}"
     else
@@ -88,14 +105,61 @@ class HomeController < ApplicationController
   end
 
   def profile
+    @user = current_user
     @total_wagered = current_user.total_wagered
     @total_profit_loss = current_user.total_profit_loss
     @win_percentage = current_user.win_percentage
     @betting_histories = current_user.betting_histories.recent.includes(:dk_game)
   end
 
+  def user_profile
+    @user = User.find(params[:id])
+    @total_wagered = @user.total_wagered
+    @total_profit_loss = @user.total_profit_loss
+    @win_percentage = @user.win_percentage
+    @betting_histories = @user.betting_histories.recent.includes(:dk_game)
+    render :profile
+  end
+
   def settings
     # Placeholder for settings page
+  end
+
+  def weekly_budget
+    week = params[:week].to_i
+    used = current_user.weekly_budget_used(week).to_f
+    remaining = current_user.weekly_budget_remaining(week).to_f
+    
+    Rails.logger.info "Weekly budget request - User: #{current_user.id}, Week: #{week}, Used: #{used}, Remaining: #{remaining}"
+    
+    render json: {
+      week: week,
+      budget: User::WEEKLY_BUDGET,
+      used: used,
+      remaining: remaining,
+      min_bet: User::MIN_BET,
+      max_bet: User::MAX_BET
+    }
+  end
+
+  def update_bet_result
+    unless current_user&.admin?
+      render json: { success: false, errors: ['Unauthorized access'] }, status: :unauthorized
+      return
+    end
+
+    betting_history = BettingHistory.find(params[:id])
+    result_value = params[:result]
+    
+    Rails.logger.info "Updating bet #{params[:id]} with result: #{result_value}"
+    
+    if betting_history.update(result: result_value)
+      Rails.logger.info "Successfully updated bet to: #{betting_history.result}"
+      render json: { success: true, result: betting_history.result }
+    else
+      Rails.logger.error "Failed to update bet: #{betting_history.errors.full_messages}"
+      render json: { success: false, errors: betting_history.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   private

@@ -13,10 +13,53 @@
     <div class="setting-value"><%= current_user.name %></div>
   </div>
   
+  <% if current_user.admin? %>
+    <div class="setting-item">
+      <div class="setting-label">Role</div>
+      <div class="setting-value admin-badge">Administrator</div>
+    </div>
+  <% end %>
+  
   <%= link_to logout_path, class: "logout-button" do %>
     Logout
   <% end %>
 </div>
+
+<% if current_user.admin? %>
+  <div class="admin-section">
+    <h2>Admin: Manage Bet Results</h2>
+    
+    <div class="filter-toggle">
+      <button class="filter-btn active" data-filter="pending">Pending Only</button>
+      <button class="filter-btn" data-filter="all">All Bets</button>
+    </div>
+    
+    <div class="bets-management">
+      <% betting_histories = BettingHistory.includes(:user, :dk_game).order(created_at: :desc) %>
+      <% betting_histories.each do |bet| %>
+        <div class="bet-management-item" data-result="<%= bet.result %>">
+          <div class="bet-info">
+            <div class="bet-user-name"><%= bet.user.name %></div>
+            <div class="bet-description"><%= bet.formatted_description %></div>
+            <div class="bet-meta">
+              <span class="bet-week">Week <%= bet.nfl_week %></span>
+              <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+              <span class="bet-date"><%= bet.created_at.in_time_zone(Time.zone).strftime('%m/%d %I:%M%p') %></span>
+            </div>
+          </div>
+          <div class="bet-result-controls">
+            <select class="result-select" data-bet-id="<%= bet.id %>">
+              <option value="pending" <%= 'selected' if bet.pending? %>>Pending</option>
+              <option value="win" <%= 'selected' if bet.win? %>>Win</option>
+              <option value="loss" <%= 'selected' if bet.loss? %>>Loss</option>
+              <option value="push" <%= 'selected' if bet.push? %>>Push</option>
+            </select>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
 
 <style>
   body {
@@ -70,4 +113,219 @@
     margin-top: 24px;
     font-weight: bold;
   }
+
+  .admin-badge {
+    color: #4d9640;
+    font-weight: bold;
+  }
+
+  .admin-section {
+    padding: 16px;
+    margin-top: 24px;
+    border-top: 1px solid #333;
+  }
+
+  .admin-section h2 {
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .filter-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .filter-btn {
+    flex: 1;
+    padding: 12px;
+    background: #212121;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    background: #2a2a2a;
+  }
+
+  .filter-btn.active {
+    background: #4d9640;
+    border-color: #4d9640;
+  }
+
+  .bets-management {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bet-management-item {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .bet-management-item.hidden {
+    display: none;
+  }
+
+  .bet-info {
+    flex: 1;
+  }
+
+  .bet-user-name {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .bet-description {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .bet-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+    color: #888;
+  }
+
+  .bet-result-controls {
+    flex-shrink: 0;
+  }
+
+  .result-select {
+    padding: 8px 12px;
+    background: #212121;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 120px;
+  }
+
+  .result-select:focus {
+    outline: none;
+    border-color: #4d9640;
+  }
+
+  .result-select option {
+    background: #212121;
+    color: white;
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter toggle functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const betItems = document.querySelectorAll('.bet-management-item');
+    
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Update active state
+        filterButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+        
+        // Show/hide bets based on filter
+        betItems.forEach(item => {
+          if (filter === 'pending') {
+            if (item.dataset.result === 'pending') {
+              item.classList.remove('hidden');
+            } else {
+              item.classList.add('hidden');
+            }
+          } else {
+            item.classList.remove('hidden');
+          }
+        });
+      });
+    });
+    
+    // Initialize with pending filter
+    betItems.forEach(item => {
+      if (item.dataset.result !== 'pending') {
+        item.classList.add('hidden');
+      }
+    });
+    
+    // Result change handler
+    const resultSelects = document.querySelectorAll('.result-select');
+    
+    resultSelects.forEach(select => {
+      select.addEventListener('change', function() {
+        const betId = this.dataset.betId;
+        const newResult = this.value;
+        const selectElement = this;
+        
+        // Store the original value from the selected option
+        const originalValue = selectElement.querySelector('option[selected]')?.value || 
+                             Array.from(selectElement.options).find(opt => opt.defaultSelected)?.value ||
+                             'pending';
+        
+        console.log(`Updating bet ${betId} from ${originalValue} to ${newResult}`);
+        
+        // Update via AJAX
+        fetch(`/betting_histories/${betId}/update_result`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          },
+          body: JSON.stringify({ result: newResult })
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            return response.json().then(data => {
+              throw new Error(data.errors ? data.errors.join(', ') : 'Update failed');
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Update successful:', data);
+          if (data.success) {
+            // Update the item's data attribute
+            const item = selectElement.closest('.bet-management-item');
+            item.dataset.result = newResult;
+            
+            // Update selected attribute for persistence
+            selectElement.querySelectorAll('option').forEach(opt => {
+              opt.removeAttribute('selected');
+              if (opt.value === newResult) {
+                opt.setAttribute('selected', 'selected');
+              }
+            });
+            
+            // Show success feedback
+            const originalBg = item.style.background;
+            item.style.background = '#2d5f28';
+            setTimeout(() => {
+              item.style.background = originalBg;
+            }, 500);
+          } else {
+            throw new Error(data.errors ? data.errors.join(', ') : 'Update failed');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating bet:', error);
+          alert('Error updating bet result: ' + error.message);
+          selectElement.value = originalValue;
+        });
+      });
+    });
+  });
+</script>

@@ -176,6 +176,33 @@
     font-size: 14px;
   }
 
+  .budget-info {
+    background: #212121;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .budget-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #888;
+  }
+
+  .budget-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .budget-row.remaining {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    padding-top: 8px;
+    border-top: 1px solid #333;
+  }
+
   .modal-body {
     margin-bottom: 20px;
   }
@@ -205,6 +232,16 @@
   .form-group input[type="number"]:focus {
     outline: none;
     border-color: #4d9640;
+  }
+
+  .stake-error {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .stake-error.hidden {
+    display: none;
   }
 
   .modal-footer {

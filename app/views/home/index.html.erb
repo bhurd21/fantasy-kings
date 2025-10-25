@@ -26,24 +26,41 @@
           <div class="bet-description" data-betting-target="betDescription"></div>
         </div>
 
+        <div class="budget-info" data-betting-target="budgetInfo">
+          <div class="budget-row">
+            <span>Weekly Budget:</span>
+            <span data-betting-target="weeklyBudget">$10.00</span>
+          </div>
+          <div class="budget-row">
+            <span>Used:</span>
+            <span data-betting-target="budgetUsed">$0.00</span>
+          </div>
+          <div class="budget-row remaining">
+            <span>Remaining:</span>
+            <span data-betting-target="budgetRemaining">$10.00</span>
+          </div>
+        </div>
+
         <div class="modal-body">
           <div class="form-group">
-            <%= form.label :stake, "Stake Amount ($)" %>
+            <%= form.label :stake, "Stake Amount ($1 - $9)" %>
             <%= form.number_field :stake, 
               step: 0.01, 
-              min: 0, 
+              min: 1,
+              max: 9, 
               placeholder: "0.00",
               data: { 
                 betting_target: "stakeInput",
-                action: "keydown->betting#handleKeydown"
+                action: "keydown->betting#handleKeydown input->betting#validateStake"
               } %>
+            <div class="stake-error hidden" data-betting-target="stakeError"></div>
           </div>
           <%= form.hidden_field :selected_bet, data: { betting_target: "selectedBet" } %>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-cancel" data-action="betting#closeModal">Cancel</button>
-          <%= form.submit "Confirm Bet", class: "btn btn-confirm" %>
+          <%= form.submit "Confirm Bet", class: "btn btn-confirm", data: { betting_target: "confirmButton" } %>
         </div>
       <% end %>
     </div>

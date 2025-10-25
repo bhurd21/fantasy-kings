@@ -102,21 +102,53 @@ class HomeController < ApplicationController
     @betting_histories = BettingHistory.includes(:user, :dk_game)
                                        .where(nfl_week: @week)
                                        .order(created_at: :desc)
+    
+    # Group betting histories by user
+    @user_bets = @betting_histories.group_by(&:user)
+    
+    # Calculate stats for each user
+    @user_stats = {}
+    @user_bets.each do |user, bets|
+      @user_stats[user.id] = {
+        total_spent: bets.sum(&:total_stake),
+        total_winnings: bets.sum(&:winnings)
+      }
+    end
   end
 
   def profile
     @user = current_user
-    @total_wagered = current_user.total_wagered
-    @total_profit_loss = current_user.total_profit_loss
-    @win_percentage = current_user.win_percentage
+    @current_week = current_nfl_week
+    @selected_week = params[:week]&.to_i || @current_week
+    
+    # Week stats
+    @week_record = @user.win_loss_record(@selected_week)
+    @week_winnings = @user.total_winnings(@selected_week)
+    @week_spent = @user.total_wagered(@selected_week)
+    
+    # Season stats
+    @season_record = @user.win_loss_record
+    @season_winnings = @user.total_winnings
+    @season_spent = @user.total_wagered
+    
     @betting_histories = current_user.betting_histories.recent.includes(:dk_game)
   end
 
   def user_profile
     @user = User.find(params[:id])
-    @total_wagered = @user.total_wagered
-    @total_profit_loss = @user.total_profit_loss
-    @win_percentage = @user.win_percentage
+    @current_week = current_nfl_week
+    @selected_week = params[:week]&.to_i || @current_week
+    
+    # Week stats
+    @week_record = @user.win_loss_record(@selected_week)
+    @week_winnings = @user.total_winnings(@selected_week)
+    @week_spent = @user.total_wagered(@selected_week)
+    
+    # Season stats
+    @season_record = @user.win_loss_record
+    @season_winnings = @user.total_winnings
+    @season_spent = @user.total_wagered
+    
     @betting_histories = @user.betting_histories.recent.includes(:dk_game)
     render :profile
   end

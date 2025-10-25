@@ -4,23 +4,65 @@
 </div>
 
 <div class="stats">
-  <div class="stat-card">
-    <div class="stat-label">Total Wagered</div>
-    <div class="stat-value"><%= format_currency(@total_wagered) %></div>
-  </div>
-  
-  <div class="stat-card">
-    <div class="stat-label">Profit/Loss</div>
-    <div class="stat-value <%= @total_profit_loss >= 0 ? 'positive' : 'negative' %>">
-      <%= format_currency(@total_profit_loss) %>
+  <!-- Week Card -->
+  <div class="stat-card-large">
+    <div class="card-header">
+      <h2>Week <%= @selected_week %></h2>
+      <select id="weekSelector" class="week-selector-small">
+        <% (1..18).each do |week_num| %>
+          <option value="<%= week_num %>" <%= 'selected' if week_num == @selected_week %>>Week <%= week_num %></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="stat-row">
+      <div class="stat-item">
+        <div class="stat-label">Record</div>
+        <div class="stat-value"><%= @week_record %></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Winnings</div>
+        <div class="stat-value <%= @week_winnings >= 0 ? 'positive' : 'negative' %>">
+          <%= format_currency(@week_winnings) %>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Spent</div>
+        <div class="stat-value"><%= format_currency(@week_spent) %></div>
+      </div>
     </div>
   </div>
   
-  <div class="stat-card">
-    <div class="stat-label">Win Rate</div>
-    <div class="stat-value"><%= @win_percentage %>%</div>
+  <!-- Season Card -->
+  <div class="stat-card-large">
+    <div class="card-header">
+      <h2>Season</h2>
+    </div>
+    <div class="stat-row">
+      <div class="stat-item">
+        <div class="stat-label">Record</div>
+        <div class="stat-value"><%= @season_record %></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Winnings</div>
+        <div class="stat-value <%= @season_winnings >= 0 ? 'positive' : 'negative' %>">
+          <%= format_currency(@season_winnings) %>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Spent</div>
+        <div class="stat-value"><%= format_currency(@season_spent) %></div>
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+  document.getElementById('weekSelector')?.addEventListener('change', function() {
+    const url = new URL(window.location.href);
+    url.searchParams.set('week', this.value);
+    window.location.href = url.toString();
+  });
+</script>
 
 <div class="history-section">
   <h2>Betting History</h2>
@@ -80,10 +122,56 @@
   }
 
   .stats {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stat-card-large {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #333;
+  }
+
+  .card-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: white;
+  }
+
+  .week-selector-small {
+    padding: 6px 12px;
+    background: #212121;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .week-selector-small:focus {
+    outline: none;
+    border-color: #4d9640;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .stat-item {
+    text-align: center;
   }
 
   .stat-card {
@@ -93,14 +181,17 @@
   }
 
   .stat-label {
-    font-size: 14px;
+    font-size: 13px;
     color: #888;
     margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .stat-value {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
+    color: white;
   }
 
   .stat-value.positive {

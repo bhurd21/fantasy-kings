@@ -16,5 +16,14 @@ class ApplicationController < ActionController::Base
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
   end
   
-  helper_method :current_user
+  def current_nfl_week
+    current_date = Date.current
+    year = current_date.year
+    season_start = Date.new(year, 9, 1)
+    days_since_start = (current_date - season_start).to_i
+    week = (days_since_start / 7.0).floor + 1
+    [[week, 1].max, 24].min
+  end
+  
+  helper_method :current_user, :current_nfl_week
 end

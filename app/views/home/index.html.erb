@@ -1,5 +1,11 @@
 <div class="header">
-  <h1>Hi, <%= current_user.name %>!</h1>
+  <div class="header-content">
+    <h1>FantasyKings</h1>
+    <div class="header-info">
+      <div class="week-info">Week <%= current_nfl_week %></div>
+      <div class="budget-info-header"><%= format_currency(current_user.weekly_budget_remaining(current_nfl_week)) %></div>
+    </div>
+  </div>
 </div>
 
 <% if flash[:notice] %>
@@ -28,7 +34,7 @@
 
         <div class="budget-info" data-betting-target="budgetInfo">
           <div class="budget-row">
-            <span>Weekly Budget:</span>
+            <span>Week <span data-betting-target="currentWeek"><%= current_nfl_week %></span> Budget:</span>
             <span data-betting-target="weeklyBudget">$10.00</span>
           </div>
           <div class="budget-row">

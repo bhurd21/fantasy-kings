@@ -7,20 +7,34 @@ class User < ApplicationRecord
   MIN_BET = 1.0
   MAX_BET = 9.0
 
-  def total_wagered
-    betting_histories.sum(:total_stake)
+  def total_wagered(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    scope.sum(:total_stake)
   end
 
-  def total_profit_loss
-    betting_histories.sum(&:profit_loss)
+  def total_winnings(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    scope.sum(&:winnings)
   end
 
-  def win_percentage
-    return 0.0 if betting_histories.count == 0
-    wins = betting_histories.win.count
-    total_decided = betting_histories.where.not(result: :pending).count
+  def total_profit_loss(week = nil)
+    total_winnings(week) - total_wagered(week)
+  end
+
+  def win_percentage(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    return 0.0 if scope.count == 0
+    wins = scope.win.count
+    total_decided = scope.where.not(result: :pending).count
     return 0.0 if total_decided == 0
     (wins.to_f / total_decided * 100).round(2)
+  end
+  
+  def win_loss_record(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    wins = scope.win.count
+    losses = scope.loss.count
+    "#{wins}-#{losses}"
   end
 
   def weekly_budget_used(week)

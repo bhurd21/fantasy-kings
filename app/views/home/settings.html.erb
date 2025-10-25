@@ -29,35 +29,50 @@
   <div class="admin-section">
     <h2>Admin: Manage Bet Results</h2>
     
+    <% betting_histories = BettingHistory.includes(:user, :dk_game).order(created_at: :desc) %>
+    <% pending_count = betting_histories.pending.count %>
+    <% all_count = betting_histories.count %>
+    
     <div class="filter-toggle">
-      <button class="filter-btn active" data-filter="pending">Pending Only</button>
-      <button class="filter-btn" data-filter="all">All Bets</button>
+      <button class="filter-btn active" data-filter="pending">
+        Pending Only (<span id="pendingCount"><%= pending_count %></span>)
+      </button>
+      <button class="filter-btn" data-filter="all">
+        All Bets (<%= all_count %>)
+      </button>
     </div>
     
-    <div class="bets-management">
-      <% betting_histories = BettingHistory.includes(:user, :dk_game).order(created_at: :desc) %>
-      <% betting_histories.each do |bet| %>
-        <div class="bet-management-item" data-result="<%= bet.result %>">
-          <div class="bet-info">
-            <div class="bet-user-name"><%= bet.user.name %></div>
-            <div class="bet-description"><%= bet.formatted_description %></div>
-            <div class="bet-meta">
-              <span class="bet-week">Week <%= bet.nfl_week %></span>
-              <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
-              <span class="bet-date"><%= bet.created_at.in_time_zone(Time.zone).strftime('%m/%d %I:%M%p') %></span>
+    <% if betting_histories.any? %>
+      <div class="bets-management">
+        <% betting_histories.each do |bet| %>
+          <div class="bet-management-item" data-result="<%= bet.result %>">
+            <div class="bet-info">
+              <div class="bet-user-name"><%= bet.user.name %></div>
+              <div class="bet-description"><%= bet.formatted_description %></div>
+              <div class="bet-meta">
+                <span class="bet-week">Week <%= bet.nfl_week %></span>
+                <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+                <span class="bet-date"><%= bet.created_at.in_time_zone(Time.zone).strftime('%m/%d %I:%M%p') %></span>
+              </div>
+            </div>
+            <div class="bet-result-controls">
+              <select class="result-select" data-bet-id="<%= bet.id %>">
+                <option value="pending" <%= 'selected' if bet.pending? %>>Pending</option>
+                <option value="win" <%= 'selected' if bet.win? %>>Win</option>
+                <option value="loss" <%= 'selected' if bet.loss? %>>Loss</option>
+                <option value="push" <%= 'selected' if bet.push? %>>Push</option>
+              </select>
             </div>
           </div>
-          <div class="bet-result-controls">
-            <select class="result-select" data-bet-id="<%= bet.id %>">
-              <option value="pending" <%= 'selected' if bet.pending? %>>Pending</option>
-              <option value="win" <%= 'selected' if bet.win? %>>Win</option>
-              <option value="loss" <%= 'selected' if bet.loss? %>>Loss</option>
-              <option value="push" <%= 'selected' if bet.push? %>>Push</option>
-            </select>
-          </div>
-        </div>
-      <% end %>
-    </div>
+        <% end %>
+      </div>
+      
+      <div id="noPendingMessage" class="empty-state hidden">
+        No pending bets. All bets have been resolved.
+      </div>
+    <% else %>
+      <div class="empty-state">No bets found.</div>
+    <% end %>
   </div>
 <% end %>
 
@@ -176,6 +191,19 @@
   .bet-management-item.hidden {
     display: none;
   }
+  
+  .hidden {
+    display: none !important;
+  }
+  
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin-top: 16px;
+  }
 
   .bet-info {
     flex: 1;
@@ -230,6 +258,33 @@
     // Filter toggle functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
     const betItems = document.querySelectorAll('.bet-management-item');
+    const noPendingMessage = document.getElementById('noPendingMessage');
+    const pendingCountSpan = document.getElementById('pendingCount');
+    
+    function updateVisibility(filter) {
+      let visibleCount = 0;
+      
+      betItems.forEach(item => {
+        if (filter === 'pending') {
+          if (item.dataset.result === 'pending') {
+            item.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            item.classList.add('hidden');
+          }
+        } else {
+          item.classList.remove('hidden');
+          visibleCount++;
+        }
+      });
+      
+      // Show/hide no pending message
+      if (filter === 'pending' && visibleCount === 0 && noPendingMessage) {
+        noPendingMessage.classList.remove('hidden');
+      } else if (noPendingMessage) {
+        noPendingMessage.classList.add('hidden');
+      }
+    }
     
     filterButtons.forEach(btn => {
       btn.addEventListener('click', function() {
@@ -238,28 +293,12 @@
         this.classList.add('active');
         
         const filter = this.dataset.filter;
-        
-        // Show/hide bets based on filter
-        betItems.forEach(item => {
-          if (filter === 'pending') {
-            if (item.dataset.result === 'pending') {
-              item.classList.remove('hidden');
-            } else {
-              item.classList.add('hidden');
-            }
-          } else {
-            item.classList.remove('hidden');
-          }
-        });
+        updateVisibility(filter);
       });
     });
     
     // Initialize with pending filter
-    betItems.forEach(item => {
-      if (item.dataset.result !== 'pending') {
-        item.classList.add('hidden');
-      }
-    });
+    updateVisibility('pending');
     
     // Result change handler
     const resultSelects = document.querySelectorAll('.result-select');
@@ -300,6 +339,7 @@
           if (data.success) {
             // Update the item's data attribute
             const item = selectElement.closest('.bet-management-item');
+            const oldResult = item.dataset.result;
             item.dataset.result = newResult;
             
             // Update selected attribute for persistence
@@ -309,6 +349,19 @@
                 opt.setAttribute('selected', 'selected');
               }
             });
+            
+            // Update pending count
+            if (oldResult === 'pending' && newResult !== 'pending') {
+              const currentCount = parseInt(pendingCountSpan.textContent);
+              pendingCountSpan.textContent = currentCount - 1;
+            } else if (oldResult !== 'pending' && newResult === 'pending') {
+              const currentCount = parseInt(pendingCountSpan.textContent);
+              pendingCountSpan.textContent = currentCount + 1;
+            }
+            
+            // Re-apply current filter
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            updateVisibility(activeFilter);
             
             // Show success feedback
             const originalBg = item.style.background;

@@ -1,30 +1,57 @@
 <div class="header">
   <h1>Week <%= @week %></h1>
+  <select id="weekSelector" class="week-selector">
+    <% (1..18).each do |week_num| %>
+      <option value="<%= week_num %>" <%= 'selected' if week_num == @week %>>Week <%= week_num %></option>
+    <% end %>
+  </select>
 </div>
 
 <div class="bets-list">
-  <% if @betting_histories.any? %>
-    <% @betting_histories.each do |bet| %>
-      <%= link_to user_profile_path(bet.user), class: "bet-item-link" do %>
-        <div class="bet-item">
-          <div class="bet-user"><%= bet.user.name %></div>
-          <div class="bet-details">
-            <%= bet.formatted_description %>
-          </div>
-          <div class="bet-footer">
-            <span class="bet-line"><%= bet.formatted_line %></span>
-            <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
-            <span class="bet-result <%= bet.result %>">
-              <%= bet.result.humanize %>
+  <% if @user_bets.any? %>
+    <% @user_bets.each do |user, bets| %>
+      <div class="user-group">
+        <div class="user-group-header">
+          <div class="user-name"><%= user.name %></div>
+          <div class="user-stats">
+            <span class="user-spent"><%= format_currency(@user_stats[user.id][:total_spent]) %> spent</span>
+            <span class="user-winnings <%= @user_stats[user.id][:total_winnings] > 0 ? 'positive' : '' %>">
+              <%= format_currency(@user_stats[user.id][:total_winnings]) %> won
             </span>
           </div>
         </div>
-      <% end %>
+        
+        <% bets.each do |bet| %>
+          <%= link_to user_profile_path(bet.user), class: "bet-item-link" do %>
+            <div class="bet-item">
+              <div class="bet-details">
+                <%= bet.formatted_description %>
+              </div>
+              <div class="bet-footer">
+                <span class="bet-line"><%= bet.formatted_line %></span>
+                <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+                <span class="bet-result <%= bet.result %>">
+                  <%= bet.result.humanize %>
+                </span>
+              </div>
+              <% if bet.winnings > 0 %>
+                <div class="individual-winnings">+<%= format_currency(bet.winnings) %></div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
     <% end %>
   <% else %>
     <div class="empty-state">No bets placed for this week yet.</div>
   <% end %>
 </div>
+
+<script>
+  document.getElementById('weekSelector').addEventListener('change', function() {
+    window.location.href = '/week/' + this.value;
+  });
+</script>
 
 <style>
   body {
@@ -39,6 +66,9 @@
     padding: 20px;
     background: #1a1a1a;
     border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .header h1 {
@@ -46,8 +76,60 @@
     color: white;
   }
 
+  .week-selector {
+    padding: 8px 16px;
+    background: #212121;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .week-selector:focus {
+    outline: none;
+    border-color: #4d9640;
+  }
+
   .bets-list {
     padding: 16px;
+  }
+
+  .user-group {
+    margin-bottom: 24px;
+  }
+
+  .user-group-header {
+    background: #212121;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .user-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .user-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+  }
+
+  .user-spent {
+    color: #888;
+  }
+
+  .user-winnings {
+    color: #888;
+  }
+
+  .user-winnings.positive {
+    color: #4d9640;
+    font-weight: bold;
   }
 
   .bet-item-link {
@@ -66,6 +148,16 @@
     background: #1a1a1a;
     border-radius: 8px;
     padding: 16px;
+    position: relative;
+  }
+
+  .individual-winnings {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #4d9640;
+    font-weight: bold;
+    font-size: 14px;
   }
 
   .bet-user {

@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["modal", "betDescription", "stakeInput", "selectedBet", "budgetInfo", 
-                     "weeklyBudget", "budgetUsed", "budgetRemaining", "stakeError", "confirmButton"]
+                     "weeklyBudget", "budgetUsed", "budgetRemaining", "stakeError", "confirmButton", "currentWeek"]
   
   connect() {
     console.log("Betting controller connected")
@@ -45,6 +45,7 @@ export default class extends Controller {
       
       console.log('Budget data received:', data)
       
+      this.currentWeekTarget.textContent = data.week
       this.weeklyBudgetTarget.textContent = `$${data.budget.toFixed(2)}`
       this.budgetUsedTarget.textContent = `$${data.used.toFixed(2)}`
       this.budgetRemainingTarget.textContent = `$${data.remaining.toFixed(2)}`

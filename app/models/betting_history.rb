@@ -23,11 +23,32 @@ class BettingHistory < ApplicationRecord
     BettingHistoryHelper.format_bet_description(self)
   end
 
+  # Winnings calculation: total amount returned (stake + profit for win, stake for push, 0 for loss)
+  def winnings
+    return 0.0 if pending? || loss?
+    return total_stake.to_f if push?
+    
+    # For a win, calculate: stake + (stake * payout based on odds)
+    # Formula from Google Sheets: TRUNC(IF(result = "Win", IF(line < 0, stake + (stake * 100 / -line), stake + (stake / 100 * line)), IF(result = "Push", stake, 0)), 2)
+    if win?
+      line = line_value.to_f
+      stake = total_stake.to_f
+      
+      if line < 0
+        stake + (stake * 100 / -line)
+      else
+        stake + (stake / 100 * line)
+      end
+    else
+      0.0
+    end
+  end
+
   def profit_loss
     return 0.0 if pending?
-    return -total_stake if loss?
+    return -total_stake.to_f if loss?
     return 0.0 if push?
-    return_amount - total_stake
+    winnings - total_stake.to_f
   end
 
   def roi_percentage

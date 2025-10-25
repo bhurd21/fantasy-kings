@@ -1,10 +1,22 @@
 class HomeController < ApplicationController
+  before_action :require_user, except: [:index]
+
   def index
-    # current_user is already available via helper method from ApplicationController
-    @bets = DkGame.all.map do |game|
+    return redirect_to sign_in_path unless current_user
+    
+    # Get current time in UTC for comparison
+    current_time_utc = Time.current
+    
+    # Filter and sort games
+    @bets = DkGame.where('commence_time > ?', current_time_utc)
+                  .order(commence_time: :asc)
+                  .map do |game|
+      # Convert UTC time to local timezone for display
+      local_time = game.commence_time&.in_time_zone(Time.zone)
+      
       {
         id: game.id,
-        date: game.commence_time&.strftime('%m/%d %I:%M%p'),
+        date: local_time&.strftime('%m/%d %I:%M%p'),
         home_team: game.home_team,
         away_team: game.away_team,
         home_spread: format_spread(game.home_spread_point),
@@ -16,16 +28,23 @@ class HomeController < ApplicationController
         under_odds: format_odds(game.under_price),
         home_moneyline: format_odds(game.home_moneyline),
         away_moneyline: format_odds(game.away_moneyline),
-        update_time: game.bookmaker_last_update&.strftime('Updated %I:%M%p')
+        update_time: game.bookmaker_last_update&.in_time_zone(Time.zone)&.strftime('Updated %I:%M%p')
       }
     end
   end
 
   def create_bet
     selected_bet = params[:selected_bet]
+    stake = params[:stake].to_f
     
     if selected_bet.blank?
       flash[:alert] = "Please select a bet before confirming"
+      redirect_to root_path
+      return
+    end
+    
+    if stake <= 0
+      flash[:alert] = "Please enter a valid stake amount"
       redirect_to root_path
       return
     end
@@ -43,22 +62,40 @@ class HomeController < ApplicationController
     # Get the line value based on bet type
     line_value = get_line_value(game, bet_type)
     
-    # Create betting history record with default stake of 0
+    # Create betting history record with user's stake
     betting_history = current_user.betting_histories.build(
       dk_game: game,
       bet_type: bet_type,
       line_value: line_value,
-      total_stake: 0.0,
+      total_stake: stake,
       result: :pending
     )
     
     if betting_history.save
-      flash[:notice] = "Bet submitted successfully! #{betting_history.formatted_description}"
+      flash[:notice] = "Bet submitted successfully! #{betting_history.formatted_description} - Stake: #{format_currency(stake)}"
     else
       flash[:alert] = "Error submitting bet: #{betting_history.errors.full_messages.join(', ')}"
     end
     
     redirect_to root_path
+  end
+
+  def week
+    @week = params[:week].to_i
+    @betting_histories = BettingHistory.includes(:user, :dk_game)
+                                       .where(nfl_week: @week)
+                                       .order(created_at: :desc)
+  end
+
+  def profile
+    @total_wagered = current_user.total_wagered
+    @total_profit_loss = current_user.total_profit_loss
+    @win_percentage = current_user.win_percentage
+    @betting_histories = current_user.betting_histories.recent.includes(:dk_game)
+  end
+
+  def settings
+    # Placeholder for settings page
   end
 
   private
@@ -95,5 +132,9 @@ class HomeController < ApplicationController
   def format_odds(odds)
     return nil if odds.nil?
     odds > 0 ? "+#{odds}" : odds.to_s
+  end
+
+  def require_user
+    redirect_to sign_in_path unless current_user
   end
 end

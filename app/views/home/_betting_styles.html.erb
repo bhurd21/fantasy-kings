@@ -1,0 +1,248 @@
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #111;
+    line-height: 1.6;
+    color: white;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+  }
+
+  .header h1 {
+    margin: 0;
+    color: white;
+  }
+
+  .flash-notice {
+    background: #4d9640;
+    color: white;
+    padding: 12px 16px;
+    margin: 16px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .flash-alert {
+    background: #d32f2f;
+    color: white;
+    padding: 12px 16px;
+    margin: 16px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .bet-cards {
+    padding-bottom: 100px;
+  }
+
+  .bet-card {
+    margin: 16px;
+    background: black;
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+  }
+
+  .betting-grid {
+    display: grid;
+    grid-template-columns: minmax(110px, auto) auto auto auto;
+    grid-template-rows: auto auto auto auto;
+    gap: 1px;
+    align-items: center;
+  }
+
+  .bet-label {
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 12px 8px;
+  }
+
+  .bet-commence-time {
+    color: #888;
+    font-size: 18px;
+  }
+
+  .team-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #b5b5b5;
+  }
+
+  .bet-button {
+    background: #212121;
+    border: 2px solid black;
+    height: 60px;
+    border-radius: 8px;
+    padding: 4px;
+    width: 100%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .bet-button.disabled {
+    background: #1a1a1a;
+    color: #555;
+    cursor: not-allowed;
+    border-color: #333;
+  }
+
+  .bet-button:hover:not(.disabled) {
+    background: #4b5563;
+    border-color: #6b7280;
+    transform: translateY(-1px);
+  }
+
+  .bet-button:active:not(.disabled) {
+    transform: translateY(0);
+  }
+
+  .bet-value {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #b5b5b5;
+  }
+
+  .bet-odds {
+    font-size: 16px;
+    color: #4d9640;
+  }
+
+  .bet-update-time {
+    color: #b5b5b5;
+    font-size: 12px;
+    font-style: italic;
+    margin-top: 8px;
+    text-align: right;
+  }
+
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .modal.hidden {
+    display: none;
+  }
+
+  .modal-content {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-header {
+    margin-bottom: 20px;
+  }
+
+  .modal-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    color: white;
+  }
+
+  .bet-description {
+    color: #888;
+    font-size: 14px;
+  }
+
+  .modal-body {
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b5b5b5;
+    font-size: 14px;
+  }
+
+  .form-group input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    background: #212121;
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  .form-group input[type="number"]:focus {
+    outline: none;
+    border-color: #4d9640;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-cancel {
+    background: #333;
+    color: white;
+  }
+
+  .btn-cancel:hover {
+    background: #444;
+  }
+
+  .btn-confirm {
+    background: #4d9640;
+    color: white;
+  }
+
+  .btn-confirm:hover {
+    background: #3d7a33;
+    transform: translateY(-1px);
+  }
+
+  .btn-confirm:active {
+    transform: translateY(0);
+  }
+</style>

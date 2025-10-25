@@ -1,30 +1,23 @@
 Rails.application.routes.draw do
-  # Root path
   root "home#index"
 
-  # Authentication routes
+  # Authentication
   get "sign_in", to: "auth#sign_in"
-
-  # OAuth routes
+  get "logout", to: "oauth#logout"
+  
+  # OAuth
   resources :oauth, param: :provider, controller: "oauth", only: :show do
     get :callback, on: :member
   end
-  
-  # Alternative route to match Google Console setting
   get "/auth/:provider/callback", to: "oauth#callback"
-  get "logout", to: "oauth#logout"
 
-  # Betting routes
+  # Betting
   post "bets", to: "home#create_bet"
-  resources :betting_histories, only: [:index, :show, :create, :update]
+  
+  # Mobile nav routes
+  get "week/:week", to: "home#week", as: :week
+  get "profile", to: "home#profile"
+  get "settings", to: "home#settings"
 
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 end

@@ -1,0 +1,118 @@
+<div class="header">
+  <h1>Week <%= @week %></h1>
+</div>
+
+<div class="bets-list">
+  <% if @betting_histories.any? %>
+    <% @betting_histories.each do |bet| %>
+      <div class="bet-item">
+        <div class="bet-user"><%= bet.user.name %></div>
+        <div class="bet-details">
+          <%= bet.formatted_description %>
+        </div>
+        <div class="bet-footer">
+          <span class="bet-line"><%= bet.formatted_line %></span>
+          <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+          <span class="bet-result <%= bet.result %>">
+            <%= bet.result.humanize %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty-state">No bets placed for this week yet.</div>
+  <% end %>
+</div>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #111;
+    color: white;
+  }
+
+  .header {
+    padding: 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+  }
+
+  .header h1 {
+    margin: 0;
+    color: white;
+  }
+
+  .bets-list {
+    padding: 16px;
+  }
+
+  .bet-item {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .bet-user {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .bet-details {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .bet-line {
+    color: #4d9640;
+    margin-left: 8px;
+  }
+
+  .bet-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bet-stake {
+    color: #888;
+    font-size: 14px;
+  }
+
+  .bet-result {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .bet-result.pending {
+    background: #333;
+    color: #888;
+  }
+
+  .bet-result.win {
+    background: #4d9640;
+    color: white;
+  }
+
+  .bet-result.loss {
+    background: #d32f2f;
+    color: white;
+  }
+
+  .bet-result.push {
+    background: #ff9800;
+    color: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+  }
+</style>

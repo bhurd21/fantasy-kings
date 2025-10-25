@@ -1,0 +1,61 @@
+<div class="bet-card">
+  <div class="betting-grid">
+    <!-- Labels Column -->
+    <div class="bet-commence-time"><%= bet[:date] %></div>
+    <div class="bet-label">spread</div>
+    <div class="bet-label">totals</div>
+    <div class="bet-label">winner</div>
+    
+    <!-- Away Options Row -->
+    <div class="team-label"><%= bet[:away_team] %></div>
+    <%= render partial: 'bet_option', locals: { 
+      bet: bet, 
+      bet_type: 'away_spread',
+      value: bet[:away_spread],
+      odds: bet[:away_spread_odds],
+      label: bet[:away_spread]
+    } %>
+    <%= render partial: 'bet_option', locals: { 
+      bet: bet, 
+      bet_type: 'total_over',
+      value: bet[:total],
+      odds: bet[:total_odds],
+      label: "O #{bet[:total]}"
+    } %>
+    <%= render partial: 'bet_option', locals: { 
+      bet: bet, 
+      bet_type: 'away_winner',
+      value: bet[:away_moneyline],
+      odds: bet[:away_moneyline],
+      label: nil
+    } %>
+    
+    <!-- Home Options Row -->
+    <div class="team-label"><%= bet[:home_team] %></div>
+    <%= render partial: 'bet_option', locals: { 
+      bet: bet, 
+      bet_type: 'home_spread',
+      value: bet[:home_spread],
+      odds: bet[:home_spread_odds],
+      label: bet[:home_spread]
+    } %>
+    <%= render partial: 'bet_option', locals: { 
+      bet: bet, 
+      bet_type: 'total_under',
+      value: bet[:total],
+      odds: bet[:under_odds],
+      label: "U #{bet[:total]}"
+    } %>
+    <%= render partial: 'bet_option', locals: { 
+      bet: bet, 
+      bet_type: 'home_winner',
+      value: bet[:home_moneyline],
+      odds: bet[:home_moneyline],
+      label: nil
+    } %>
+  </div>
+  
+  <% if bet[:update_time] %>
+    <div class="bet-update-time"><%= bet[:update_time] %></div>
+  <% end %>
+</div>

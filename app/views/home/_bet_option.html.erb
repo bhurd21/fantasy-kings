@@ -1,0 +1,17 @@
+<% if value.present? %>
+  <button 
+    type="button"
+    class="bet-button" 
+    data-action="betting#selectBet"
+    data-bet-id="<%= bet[:id] %>_<%= bet_type %>"
+    data-bet-description="<%= bet[:away_team] %> @ <%= bet[:home_team] %> - <%= bet_type.humanize %> <%= label || odds %>">
+    <% if label %>
+      <div class="bet-value"><%= label %></div>
+    <% end %>
+    <div class="bet-odds"><%= odds %></div>
+  </button>
+<% else %>
+  <div class="bet-button disabled">
+    <div class="bet-value">-</div>
+  </div>
+<% end %>

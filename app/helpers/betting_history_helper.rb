@@ -1,5 +1,6 @@
 module BettingHistoryHelper
   def self.format_bet_description(betting_history)
+    Rails.logger.info "#{betting_history.inspect}"
     return betting_history.bet_description if betting_history.bet_description.present?
     
     game = betting_history.dk_game
@@ -8,9 +9,9 @@ module BettingHistoryHelper
     return "Unknown bet" unless game && bet_type
 
     case bet_type
-    when 'home_moneyline'
+    when 'home_moneyline', 'home_winner'
       "#{game.home_team} ML"
-    when 'away_moneyline'
+    when 'away_moneyline', 'away_winner'
       "#{game.away_team} ML"
     when 'home_spread'
       spread = game.home_spread_point
@@ -20,10 +21,10 @@ module BettingHistoryHelper
       spread = game.away_spread_point
       spread_str = spread > 0 ? "+#{spread}" : spread.to_s
       "#{game.away_team} #{spread_str}"
-    when 'over'
-      "Over #{game.total_point}"
-    when 'under'
-      "Under #{game.total_point}"
+    when 'total_over', 'over'
+      "O #{game.total_point} #{game.away_team} vs #{game.home_team}"
+    when 'total_under', 'under'
+      "U #{game.total_point} #{game.away_team} vs #{game.home_team}"
     else
       "#{game.home_team} vs #{game.away_team} - #{bet_type.humanize}"
     end

@@ -1,426 +1,53 @@
 <div class="header">
   <h1>Hi, <%= current_user.name %>!</h1>
-  <%= link_to "Logout", logout_path, class: "logout-btn" %>
 </div>
 
-<%= form_with url: bets_path, method: :post, local: true, class: "betting-form" do |form| %>
-  <% if flash[:notice] %>
-    <div class="flash-notice"><%= flash[:notice] %></div>
-  <% end %>
-  
-  <% if flash[:alert] %>
-    <div class="flash-alert"><%= flash[:alert] %></div>
-  <% end %>
+<% if flash[:notice] %>
+  <div class="flash-notice"><%= flash[:notice] %></div>
+<% end %>
 
-  <div class="betting-container">
+<% if flash[:alert] %>
+  <div class="flash-alert"><%= flash[:alert] %></div>
+<% end %>
 
-    <div class="bet-cards">
-      <% @bets.each do |bet| %>
-        <div class="bet-card">
+<div data-controller="betting">
+  <div class="bet-cards">
+    <% @bets.each do |bet| %>
+      <%= render partial: 'bet_card', locals: { bet: bet } %>
+    <% end %>
+  </div>
 
-          <div class="betting-grid">
-            <!-- Labels Column -->
-            <div class="bet-commence-time"><%= bet[:date] %></div>
-            <div class="bet-label">spread</div>
-            <div class="bet-label">totals</div>
-            <div class="bet-label">winner</div>
-            
-            <!-- Away Options Row -->
-            <div class="team-label"><%= bet[:away_team] %></div>
-            <% if bet[:away_spread].present? %>
-              <%= form.radio_button :selected_bet, "#{bet[:id]}_away_spread", id: "bet_#{bet[:id]}_away_spread", class: "bet-radio" %>
-              <%= form.label "bet_#{bet[:id]}_away_spread", class: "bet-button" do %>
-                <div class="bet-value"><%= bet[:away_spread] %></div>
-                <div class="bet-odds"><%= bet[:away_spread_odds] %></div>
-              <% end %>
-            <% else %>
-              <div class="bet-button disabled">
-                <div class="bet-value">-</div>
-              </div>
-            <% end %>
-            
-            <% if bet[:total].present? %>
-              <%= form.radio_button :selected_bet, "#{bet[:id]}_total_over", id: "bet_#{bet[:id]}_total_over", class: "bet-radio" %>
-              <%= form.label "bet_#{bet[:id]}_total_over", class: "bet-button" do %>
-                <div class="bet-value">O <%= bet[:total] %></div>
-                <div class="bet-odds"><%= bet[:total_odds] %></div>
-              <% end %>
-            <% else %>
-              <div class="bet-button disabled">
-                <div class="bet-value">-</div>
-              </div>
-            <% end %>
-            
-            <% if bet[:away_moneyline].present? %>
-              <%= form.radio_button :selected_bet, "#{bet[:id]}_away_winner", id: "bet_#{bet[:id]}_away_winner", class: "bet-radio" %>
-              <%= form.label "bet_#{bet[:id]}_away_winner", class: "bet-button" do %>
-                <div class="bet-odds"><%= bet[:away_moneyline] %></div>
-              <% end %>
-            <% else %>
-              <div class="bet-button disabled">
-                <div class="bet-value">-</div>
-              </div>
-            <% end %>
-            
-            <!-- Home Options Row -->
-            <div class="team-label"><%= bet[:home_team] %></div>
-            <% if bet[:home_spread].present? %>
-              <%= form.radio_button :selected_bet, "#{bet[:id]}_home_spread", id: "bet_#{bet[:id]}_home_spread", class: "bet-radio" %>
-              <%= form.label "bet_#{bet[:id]}_home_spread", class: "bet-button" do %>
-                <div class="bet-value"><%= bet[:home_spread] %></div>
-                <div class="bet-odds"><%= bet[:home_spread_odds] %></div>
-              <% end %>
-            <% else %>
-              <div class="bet-button disabled">
-                <div class="bet-value">-</div>
-              </div>
-            <% end %>
-            
-            <% if bet[:total].present? %>
-              <%= form.radio_button :selected_bet, "#{bet[:id]}_total_under", id: "bet_#{bet[:id]}_total_under", class: "bet-radio" %>
-              <%= form.label "bet_#{bet[:id]}_total_under", class: "bet-button" do %>
-                <div class="bet-value">U <%= bet[:total] %></div>
-                <div class="bet-odds"><%= bet[:under_odds] %></div>
-              <% end %>
-            <% else %>
-              <div class="bet-button disabled">
-                <div class="bet-value">-</div>
-              </div>
-            <% end %>
-            
-            <% if bet[:home_moneyline].present? %>
-              <%= form.radio_button :selected_bet, "#{bet[:id]}_home_winner", id: "bet_#{bet[:id]}_home_winner", class: "bet-radio" %>
-              <%= form.label "bet_#{bet[:id]}_home_winner", class: "bet-button" do %>
-                <div class="bet-odds"><%= bet[:home_moneyline] %></div>
-              <% end %>
-            <% else %>
-              <div class="bet-button disabled">
-                <div class="bet-value">-</div>
-              </div>
-            <% end %>
+  <!-- Confirmation Modal -->
+  <div class="modal hidden" data-betting-target="modal" data-action="click->betting#closeOnBackdrop">
+    <div class="modal-content">
+      <%= form_with url: bets_path, method: :post, local: true do |form| %>
+        <div class="modal-header">
+          <h2>Place Your Bet</h2>
+          <div class="bet-description" data-betting-target="betDescription"></div>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <%= form.label :stake, "Stake Amount ($)" %>
+            <%= form.number_field :stake, 
+              step: 0.01, 
+              min: 0, 
+              placeholder: "0.00",
+              data: { 
+                betting_target: "stakeInput",
+                action: "keydown->betting#handleKeydown"
+              } %>
           </div>
-          
-          <% if bet[:update_time] %>
-            <div class="bet-update-time"><%= bet[:update_time] %></div>
-          <% end %>
+          <%= form.hidden_field :selected_bet, data: { betting_target: "selectedBet" } %>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-action="betting#closeModal">Cancel</button>
+          <%= form.submit "Confirm Bet", class: "btn btn-confirm" %>
         </div>
       <% end %>
     </div>
-
-    <div class="confirm-section hidden" id="confirm-section">
-      <%= form.submit "Confirm →", class: "confirm-button", id: "confirm-bet-button", disabled: true %>
-    </div>
   </div>
-<% end %>
-
-<div class="navigation-links">
-  <%= link_to "View Betting History", betting_histories_path, class: "history-link" %>
 </div>
 
-<style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #111;
-    line-height: 1.6;
-    color: white;
-  }
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: #1a1a1a;
-    border-bottom: 1px solid #333;
-  }
-
-  .header h1 {
-    margin: 0;
-    color: white;
-  }
-
-  .logout-btn {
-    background: #d32f2f;
-    color: white;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
-  .logout-btn:hover {
-    background: #b71c1c;
-  }
-
-  .betting-form {
-    
-  }
-
-  .flash-notice {
-    background: #4d9640;
-    color: white;
-    padding: 12px 16px;
-    margin: 16px;
-    border-radius: 8px;
-    text-align: center;
-  }
-
-  .flash-alert {
-    background: #d32f2f;
-    color: white;
-    padding: 12px 16px;
-    margin: 16px;
-    border-radius: 8px;
-    text-align: center;
-  }
-
-  .betting-container {
-    
-  }
-
-  .staged-bets-counter {
-    
-  }
-
-  .bet-cards {
-  
-
-  }
-
-  .bet-card {
-    margin: 16px;
-    background: black;
-    
-    border-radius: 12px;
-    padding: 12px;
-    color: white;
-    
-  }
-
-  .bet-header {
-    margin-bottom: 20px;
-  }
-
-  .game-date {
-    color: #888;
-    font-size: 14px;
-    margin-bottom: 5px;
-  }
-
-  .teams {
-    font-size: 18px;
-    font-weight: bold;
-    color: #b5b5b5;
-  }
-
-  .betting-grid {
-    display: grid;
-    grid-template-columns: minmax(110px, auto) auto auto auto;
-    grid-template-rows: auto auto auto auto;
-    gap: 1px;
-    align-items: center;
-  }
-
-  .bet-label {
-    color: #888;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: center;
-    padding: 12px 8px;
-  }
-
-  .bet-commence-time {
-    color: #888;
-    font-size: 18px;
-  }
-
-  .betting-options-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-    justify-content: space-around;
-  }
-
-
-  .bet-option {
-    flex: 1;
-    text-align: center;
-  }
-
-  .bet-type {
-    color: #888;
-    font-size: 12px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .bet-radio {
-    display: none;
-  }
-
-  .bet-button {
-    background: #212121;
-    border: 2px solid black;
-    height: 60px;
-    border-radius: 8px;
-    padding: 4px;
-    width: 100%;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .bet-button.disabled {
-    background: #1a1a1a;
-    color: #555;
-    cursor: not-allowed;
-    border-color: #333;
-  }
-
-  .team-label {
-    font-size: 18px;
-    font-weight: bold;
-    color: #b5b5b5;
-  }
-
-  .bet-button:hover:not(.disabled) {
-    background: #4b5563;
-    border-color: #6b7280;
-    transform: translateY(-1px);
-  }
-
-  .bet-radio:checked + .bet-button {
-    background-color: darkslategray;
-    transform: translateY(-1px);
-  }
-
-  .bet-button:active:not(.disabled) {
-    transform: translateY(0);
-  }
-
-  .bet-value {
-    font-size: 16px;
-    margin-bottom: 4px;
-    color: #b5b5b5;
-  }
-
-  .bet-odds {
-    font-size: 16px;
-    color: #4d9640;
-  }
-
-  .bet-odds:empty {
-    display: none;
-  }
-
-  .bet-update-time {
-    color: white;
-    font-size: 12px;
-    font-style: italic;
-    margin-top: 8px;
-    text-align: center;
-  }
-
-  .confirm-section {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-  }
-
-  .confirm-button {
-    background: #4d9640;
-    color: white;
-    border: none;
-    padding: 16px 32px;
-    border-radius: 50px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(77, 150, 64, 0.3);
-    transition: all 0.3s ease;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  .confirm-button.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .confirm-button:hover.active {
-    background: #3d7a33;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(77, 150, 64, 0.4);
-  }
-
-  .confirm-button:active.active {
-    transform: translateY(0);
-  }
-
-  .hidden { display: none; }
-
-  .navigation-links {
-    padding: 20px;
-    text-align: center;
-  }
-
-  .history-link {
-    color: #4d9640;
-    text-decoration: none;
-    font-weight: bold;
-  }
-
-  .history-link:hover {
-    text-decoration: underline;
-  }
-
-</style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const radios = document.querySelectorAll('.bet-radio');
-    const confirmButton = document.getElementById('confirm-bet-button');
-    const confirmSection = document.getElementById('confirm-section');
-
-    function updateConfirm() {
-      const hasChecked = Array.from(radios).some(r => r.checked);
-      if (hasChecked) {
-        confirmSection.classList.remove('hidden');
-        confirmButton.classList.add('active');
-        confirmButton.disabled = false;
-      } else {
-        confirmSection.classList.add('hidden');
-        confirmButton.classList.remove('active');
-        confirmButton.disabled = true;
-      }
-    }
-
-    radios.forEach(radio => {
-      radio.addEventListener('change', updateConfirm);
-    });
-
-    // Unselect when clicking anywhere that isn't a bet button/radio or the confirm section
-    document.addEventListener('click', function(e) {
-      const clickedBet = e.target.closest('.bet-button') || e.target.closest('.bet-radio');
-      const clickedConfirm = e.target.closest('#confirm-section');
-      if (!clickedBet && !clickedConfirm) {
-        radios.forEach(r => r.checked = false);
-        updateConfirm();
-      }
-    });
-
-    // initialize state on load
-    updateConfirm();
-  });
-</script>
+<%= render partial: 'betting_styles' %>

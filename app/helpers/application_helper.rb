@@ -1,6 +1,15 @@
 module ApplicationHelper
   include BettingHistoryHelper
 
+  def current_nfl_week
+    current_date = Date.current
+    year = current_date.year
+    season_start = Date.new(year, 9, 1)
+    days_since_start = (current_date - season_start).to_i
+    week = (days_since_start / 7.0).floor + 1
+    [[week, 1].max, 24].min
+  end
+
   def format_currency(amount)
     return "$0.00" if amount.nil?
     amount >= 0 ? "$#{sprintf('%.2f', amount)}" : "-$#{sprintf('%.2f', amount.abs)}"

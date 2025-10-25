@@ -42,8 +42,7 @@ class BettingHistory < ApplicationRecord
   end
 
   def set_bet_description
-    # We'll set this after save since we need the game data
-    self.bet_description ||= "Bet placed"
+    self.bet_description ||= BettingHistoryHelper.format_bet_description(self)
   end
 
   def calculate_current_nfl_week

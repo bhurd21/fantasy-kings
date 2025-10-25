@@ -1,4 +1,6 @@
 class OauthController < ApplicationController
+  skip_before_action :require_authentication
+  
   def show
     provider = params[:provider]
     callback_provider = provider == 'google' ? 'google_oauth2' : provider
@@ -23,13 +25,13 @@ class OauthController < ApplicationController
 
     redirect_to root_path, notice: "Logged in successfully with #{provider.titleize}!"
   rescue OAuth2::Error => e
-    redirect_to root_path, alert: "OAuth failed: #{e.description}"
+    redirect_to sign_in_path, alert: "OAuth failed: #{e.description}"
   end
 
   def logout
     session[:user_id] = nil
     session[:user_info] = nil
-    redirect_to root_path, notice: "Logged out successfully!"
+    redirect_to sign_in_path, notice: "Logged out successfully!"
   end
 
   private

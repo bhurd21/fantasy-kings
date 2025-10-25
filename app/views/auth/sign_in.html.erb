@@ -1,0 +1,13 @@
+<div class="center">
+  <%= link_to oauth_path("google"), id: "google-signin", class: "btn" do %>
+    Sign in with Google
+  <% end %>
+</div>
+
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { display: flex; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; }
+  .center { width: 100%; max-width: 380px; padding: 16px; text-align: center; }
+  .signin-label { display: block; margin-bottom: 12px; font-size: 16px; color: #333; }
+  .btn { display: inline-block; padding: 10px 14px; border-radius: 8px; border: 1px solid #ccc; text-decoration: none; color: #111; background: #fff; }
+</style>

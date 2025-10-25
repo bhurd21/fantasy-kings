@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   # Root path
   root "home#index"
-  get "home/index"
+
+  # Authentication routes
+  get "sign_in", to: "auth#sign_in"
 
   # OAuth routes
   resources :oauth, param: :provider, controller: "oauth", only: :show do

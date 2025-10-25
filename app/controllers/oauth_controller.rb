@@ -4,7 +4,7 @@ class OauthController < ApplicationController
     callback_provider = provider == 'google' ? 'google_oauth2' : provider
     client = oauth_client(provider)
     redirect_to client.auth_code.authorize_url(
-      redirect_uri: "http://localhost:3000/auth/#{callback_provider}/callback",
+      redirect_uri: "#{base_url}/auth/#{callback_provider}/callback",
       scope: 'openid email profile'
     ), allow_other_host: true
   end
@@ -14,7 +14,7 @@ class OauthController < ApplicationController
     callback_provider = provider == 'google' ? 'google_oauth2' : provider
     client = oauth_client(provider)
 
-    token = client.auth_code.get_token(params[:code], redirect_uri: "http://localhost:3000/auth/#{callback_provider}/callback")
+    token = client.auth_code.get_token(params[:code], redirect_uri: "#{base_url}/auth/#{callback_provider}/callback")
     user_info = fetch_user_info(provider, token)
 
     user = find_or_create_user(user_info, provider)
@@ -33,6 +33,14 @@ class OauthController < ApplicationController
   end
 
   private
+
+  def base_url
+    if Rails.env.development?
+      "http://localhost:3000"
+    else
+      "https://fantasy-kings.com"
+    end
+  end
 
   def oauth_client(provider)
     case provider

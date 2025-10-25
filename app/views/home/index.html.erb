@@ -1,197 +1,76 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Fantasy Kings - Google OAuth Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 90%;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 2.5em;
-      font-weight: 700;
-    }
-    .subtitle {
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 1.1em;
-    }
-    .google-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 24px;
-      background: #4285f4;
-      color: white;
-      text-decoration: none;
-      border-radius: 50px;
-      font-weight: 500;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      margin: 10px;
-      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
-    }
-    .google-btn:hover {
-      background: #3367d6;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
-    }
-    .google-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 10px;
-      background: white;
-      border-radius: 3px;
-      padding: 2px;
-    }
-    .logout-btn {
-      display: inline-block;
-      padding: 10px 20px;
-      background: #dc3545;
-      color: white;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: 500;
-      margin: 10px;
-      transition: all 0.3s ease;
-    }
-    .logout-btn:hover {
-      background: #c82333;
-      transform: translateY(-2px);
-    }
-    .user-info {
-      background: #f8f9fa;
-      border-radius: 15px;
-      padding: 25px;
-      margin: 25px 0;
-      text-align: left;
-    }
-    .user-info h3 {
-      color: #333;
-      margin-top: 0;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .info-item {
-      margin: 15px 0;
-      padding: 10px;
-      background: white;
-      border-radius: 8px;
-      border-left: 4px solid #4285f4;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 5px;
-    }
-    .info-value {
-      color: #666;
-      word-break: break-all;
-    }
-    .welcome-msg {
-      background: #d4edda;
-      color: #155724;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #c3e6cb;
-    }
-    pre {
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 14px;
-      text-align: left;
-      border: 1px solid #e9ecef;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🏰 Fantasy Kings</h1>
-    <p class="subtitle">Google OAuth Authentication Demo</p>
+<div class="header">
+  <div class="header-content">
+    <h1>FantasyKings</h1>
+    <div class="header-info">
+      <div class="week-info">Week <%= current_nfl_week %></div>
+      <div class="budget-info-header"><%= format_currency(current_user.weekly_budget_remaining(current_nfl_week)) %></div>
+    </div>
+  </div>
+</div>
 
-    <% if @current_user %>
-      <div class="welcome-msg">
-        <strong>Welcome, <%= @current_user.name %>!</strong><br>
-        You are successfully logged in with Google.
-      </div>
+<% if flash[:notice] %>
+  <div class="flash-notice"><%= flash[:notice] %></div>
+<% end %>
 
-      <% if @user_info %>
-        <div class="user-info">
-          <h3>📋 Google Response Data</h3>
-          <div class="info-item">
-            <div class="info-label">Name:</div>
-            <div class="info-value"><%= @user_info["name"] %></div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Email:</div>
-            <div class="info-value"><%= @user_info["email"] %></div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Google ID:</div>
-            <div class="info-value"><%= @user_info["id"] %></div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Profile Picture:</div>
-            <div class="info-value">
-              <% if @user_info["picture"] %>
-                <img src="<%= @user_info["picture"] %>" alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
-                <br><%= @user_info["picture"] %>
-              <% else %>
-                Not provided
-              <% end %>
-            </div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Verified Email:</div>
-            <div class="info-value"><%= @user_info["verified_email"] ? "Yes" : "No" %></div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Locale:</div>
-            <div class="info-value"><%= @user_info["locale"] || "Not provided" %></div>
-          </div>
-          
-          <h4 style="margin-top: 25px; color: #333;">Complete Raw Response:</h4>
-          <pre><%= JSON.pretty_generate(@user_info) %></pre>
-        </div>
-      <% end %>
+<% if flash[:alert] %>
+  <div class="flash-alert"><%= flash[:alert] %></div>
+<% end %>
 
-      <%= link_to "🚪 Logout", logout_path, class: "logout-btn" %>
-    <% else %>
-      <p style="color: #666; margin-bottom: 30px;">
-        Click the button below to sign in with your Google account and see what information Google shares with our application.
-      </p>
-      
-      <%= link_to oauth_path("google"), class: "google-btn" do %>
-        <svg class="google-icon" viewBox="0 0 24 24">
-          <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Sign in with Google
-      <% end %>
+<div data-controller="betting">
+  <div class="bet-cards">
+    <% @bets.each do |bet| %>
+      <%= render partial: 'bet_card', locals: { bet: bet } %>
     <% end %>
   </div>
-</body>
-</html>
+
+  <!-- Confirmation Modal -->
+  <div class="modal hidden" data-betting-target="modal" data-action="click->betting#closeOnBackdrop">
+    <div class="modal-content">
+      <%= form_with url: bets_path, method: :post, local: true do |form| %>
+        <div class="modal-header">
+          <h2>Place Your Bet</h2>
+          <div class="bet-description" data-betting-target="betDescription"></div>
+        </div>
+
+        <div class="budget-info" data-betting-target="budgetInfo">
+          <div class="budget-row">
+            <span>Week <span data-betting-target="currentWeek"><%= current_nfl_week %></span> Budget:</span>
+            <span data-betting-target="weeklyBudget">$10.00</span>
+          </div>
+          <div class="budget-row">
+            <span>Used:</span>
+            <span data-betting-target="budgetUsed">$0.00</span>
+          </div>
+          <div class="budget-row remaining">
+            <span>Remaining:</span>
+            <span data-betting-target="budgetRemaining">$10.00</span>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <%= form.label :stake, "Stake Amount ($1 - $9)" %>
+            <%= form.number_field :stake, 
+              step: 0.01, 
+              min: 1,
+              max: 9, 
+              placeholder: "0.00",
+              data: { 
+                betting_target: "stakeInput",
+                action: "keydown->betting#handleKeydown input->betting#validateStake"
+              } %>
+            <div class="stake-error hidden" data-betting-target="stakeError"></div>
+          </div>
+          <%= form.hidden_field :selected_bet, data: { betting_target: "selectedBet" } %>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-action="betting#closeModal">Cancel</button>
+          <%= form.submit "Confirm Bet", class: "btn btn-confirm", data: { betting_target: "confirmButton" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'betting_styles' %>

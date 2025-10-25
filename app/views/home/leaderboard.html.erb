@@ -1,0 +1,153 @@
+<div class="header">
+  <h1>Season Leaderboard</h1>
+</div>
+
+<div class="leaderboard-container">
+  <% if @leaderboard.any? %>
+    <div class="leaderboard-table">
+      <div class="leaderboard-header">
+        <div class="col-rank">Rank</div>
+        <div class="col-name">Name</div>
+        <div class="col-winnings">Winnings</div>
+        <div class="col-stake">Stake</div>
+      </div>
+      
+      <% @leaderboard.each_with_index do |entry, index| %>
+        <%= link_to user_profile_path(entry[:user]), class: "leaderboard-row-link" do %>
+          <div class="leaderboard-row">
+            <div class="col-rank">
+              <span class="rank-badge rank-<%= index + 1 %>">#<%= index + 1 %></span>
+            </div>
+            <div class="col-name"><%= entry[:user].name %></div>
+            <div class="col-winnings <%= entry[:winnings] > 0 ? 'positive' : entry[:winnings] < 0 ? 'negative' : '' %>">
+              <%= format_currency(entry[:winnings]) %>
+            </div>
+            <div class="col-stake"><%= format_currency(entry[:stake]) %></div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">No betting data available yet.</div>
+  <% end %>
+</div>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #111;
+    color: white;
+  }
+
+  .header {
+    padding: 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+  }
+
+  .header h1 {
+    margin: 0;
+    color: white;
+  }
+
+  .leaderboard-container {
+    padding: 16px;
+  }
+
+  .leaderboard-table {
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .leaderboard-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 100px;
+    gap: 12px;
+    padding: 16px;
+    background: #212121;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    font-weight: bold;
+  }
+
+  .leaderboard-row-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: background 0.2s;
+  }
+
+  .leaderboard-row-link:active {
+    background: #212121;
+  }
+
+  .leaderboard-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 100px;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid #2a2a2a;
+    align-items: center;
+  }
+
+  .col-rank {
+    text-align: center;
+  }
+
+  .rank-badge {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4d9640;
+  }
+
+  .rank-badge.rank-1 {
+    color: #FFD700;
+    font-size: 20px;
+  }
+
+  .rank-badge.rank-2 {
+    color: #C0C0C0;
+    font-size: 18px;
+  }
+
+  .rank-badge.rank-3 {
+    color: #CD7F32;
+    font-size: 18px;
+  }
+
+  .col-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .col-winnings {
+    text-align: right;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .col-winnings.positive {
+    color: #4d9640;
+  }
+
+  .col-winnings.negative {
+    color: #d32f2f;
+  }
+
+  .col-stake {
+    text-align: right;
+    font-size: 14px;
+    color: #888;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+  }
+</style>

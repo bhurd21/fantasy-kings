@@ -1,0 +1,241 @@
+<div class="header">
+  <h1>Week <%= @week %></h1>
+  <select id="weekSelector" class="week-selector">
+    <% (1..18).each do |week_num| %>
+      <option value="<%= week_num %>" <%= 'selected' if week_num == @week %>>Week <%= week_num %></option>
+    <% end %>
+  </select>
+</div>
+
+<div class="bets-list">
+  <% if @user_bets.any? %>
+    <% @user_bets.each_with_index do |(user, bets), index| %>
+      <div class="user-group">
+        <div class="user-group-header">
+          <div class="user-info">
+            <span class="user-rank">#<%= index + 1 %></span>
+            <span class="user-name"><%= user.name %></span>
+          </div>
+          <div class="user-stats">
+            <span class="user-spent"><%= format_currency(@user_stats[user.id][:total_spent]) %> spent</span>
+            <span class="user-winnings <%= @user_stats[user.id][:total_winnings] > 0 ? 'positive' : '' %>">
+              <%= format_currency(@user_stats[user.id][:total_winnings]) %> won
+            </span>
+          </div>
+        </div>
+        
+        <% bets.each do |bet| %>
+          <%= link_to user_profile_path(bet.user), class: "bet-item-link" do %>
+            <div class="bet-item">
+              <div class="bet-details">
+                <%= bet.formatted_description %>
+              </div>
+              <div class="bet-footer">
+                <span class="bet-line"><%= bet.formatted_line %></span>
+                <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+                <span class="bet-result <%= bet.result %>">
+                  <%= bet.result.humanize %>
+                </span>
+              </div>
+              <% if bet.winnings > 0 %>
+                <div class="individual-winnings">+<%= format_currency(bet.winnings) %></div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty-state">No bets placed for this week yet.</div>
+  <% end %>
+</div>
+
+<script>
+  document.getElementById('weekSelector').addEventListener('change', function() {
+    window.location.href = '/week/' + this.value;
+  });
+</script>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #111;
+    color: white;
+  }
+
+  .header {
+    padding: 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header h1 {
+    margin: 0;
+    color: white;
+  }
+
+  .week-selector {
+    padding: 8px 16px;
+    background: #212121;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .week-selector:focus {
+    outline: none;
+    border-color: #4d9640;
+  }
+
+  .bets-list {
+    padding: 16px;
+  }
+
+  .user-group {
+    margin-bottom: 24px;
+  }
+
+  .user-group-header {
+    background: #212121;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-rank {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4d9640;
+    min-width: 35px;
+  }
+
+  .user-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+  }
+
+  .user-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+  }
+
+  .user-spent {
+    color: #888;
+  }
+
+  .user-winnings {
+    color: #888;
+  }
+
+  .user-winnings.positive {
+    color: #4d9640;
+    font-weight: bold;
+  }
+
+  .bet-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 12px;
+    transition: transform 0.2s;
+  }
+
+  .bet-item-link:active {
+    transform: scale(0.98);
+  }
+
+  .bet-item {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .individual-winnings {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #4d9640;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .bet-user {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .bet-details {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .bet-line {
+    color: #4d9640;
+    margin-left: 8px;
+  }
+
+  .bet-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bet-stake {
+    color: #888;
+    font-size: 14px;
+  }
+
+  .bet-result {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .bet-result.pending {
+    background: #333;
+    color: #888;
+  }
+
+  .bet-result.win {
+    background: #4d9640;
+    color: white;
+  }
+
+  .bet-result.loss {
+    background: #d32f2f;
+    color: white;
+  }
+
+  .bet-result.push {
+    background: #ff9800;
+    color: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+  }
+</style>

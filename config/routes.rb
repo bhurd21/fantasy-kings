@@ -16,6 +16,9 @@ Rails.application.routes.draw do
   get "weekly_budget/:week", to: "home#weekly_budget", as: :weekly_budget
   patch "betting_histories/:id/update_result", to: "home#update_bet_result", as: :update_bet_result
   
+  # Admin
+  post "admin/refresh_games", to: "home#refresh_games", as: :refresh_games
+  
   # Mobile nav routes
   get "week/:week", to: "home#week", as: :week
   get "leaderboard", to: "home#leaderboard", as: :leaderboard

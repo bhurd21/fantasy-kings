@@ -236,6 +236,22 @@ class HomeController < ApplicationController
     end
   end
 
+  def refresh_games
+    unless current_user&.admin?
+      render json: { success: false, errors: ['Unauthorized access'] }, status: :unauthorized
+      return
+    end
+
+    begin
+      # Run synchronously for immediate feedback
+      UpdateDkGamesJob.perform_now
+      render json: { success: true, message: 'Games updated successfully' }
+    rescue => e
+      Rails.logger.error "Failed to update games: #{e.message}"
+      render json: { success: false, errors: [e.message] }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def get_line_value(game, bet_type)

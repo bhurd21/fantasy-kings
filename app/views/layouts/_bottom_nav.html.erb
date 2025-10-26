@@ -55,27 +55,15 @@
     justify-content: space-around;
     padding: 8px 0 max(8px, env(safe-area-inset-bottom));
     z-index: 1000;
-    
-    /* iOS Safari fixes */
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    
-    /* Ensure it stays at the bottom on iOS */
     height: calc(60px + env(safe-area-inset-bottom));
     min-height: 60px;
-  }
-  
-  /* Alternative approach using viewport units for better iOS support */
-  @supports (-webkit-touch-callout: none) {
-    .bottom-nav {
-      /* Use dvh (dynamic viewport height) on iOS for better behavior */
-      bottom: max(0px, env(safe-area-inset-bottom));
-      position: -webkit-sticky;
-      position: sticky;
-      top: calc(100dvh - 60px - env(safe-area-inset-bottom));
-    }
+    
+    /* Force hardware acceleration and prevent repositioning */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
   }
   
   .nav-item {
@@ -102,16 +90,34 @@
   /* Body padding to account for the nav */
   body {
     padding-bottom: calc(70px + env(safe-area-inset-bottom));
+    /* Prevent iOS Safari from bouncing */
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
   }
   
-  /* Prevent scrolling issues on iOS */
+  /* Ensure consistent behavior across browsers */
   html {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
+    /* Prevent iOS Safari from hiding/showing nav during scroll */
+    height: 100%;
+    overflow-x: hidden;
   }
   
-  /* Ensure the nav doesn't interfere with page content */
-  .bottom-nav ~ * {
-    margin-bottom: env(safe-area-inset-bottom);
+  /* Prevent the viewport from changing height on scroll in iOS Safari */
+  @supports (-webkit-touch-callout: none) {
+    html {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
+    
+    body {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 </style>

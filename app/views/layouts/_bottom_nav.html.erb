@@ -49,12 +49,34 @@
     bottom: 0;
     left: 0;
     right: 0;
+    width: 100%;
     background: #1a1a1a;
     border-top: 1px solid #333;
     display: flex;
     justify-content: space-around;
     padding: 8px 0 max(8px, env(safe-area-inset-bottom));
     z-index: 1000;
+    
+    /* iOS Safari fixes */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    /* Ensure it stays at the bottom on iOS */
+    height: calc(60px + env(safe-area-inset-bottom));
+    min-height: 60px;
+  }
+  
+  /* Alternative approach using viewport units for better iOS support */
+  @supports (-webkit-touch-callout: none) {
+    .bottom-nav {
+      /* Use dvh (dynamic viewport height) on iOS for better behavior */
+      bottom: max(0px, env(safe-area-inset-bottom));
+      position: -webkit-sticky;
+      position: sticky;
+      top: calc(100dvh - 60px - env(safe-area-inset-bottom));
+    }
   }
   
   .nav-item {
@@ -67,6 +89,7 @@
     color: #888;
     transition: color 0.2s;
     min-width: 60px;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .nav-item.active {
@@ -77,7 +100,19 @@
     font-size: 12px;
   }
   
+  /* Body padding to account for the nav */
   body {
-    padding-bottom: 70px;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+  
+  /* Prevent scrolling issues on iOS */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  
+  /* Ensure the nav doesn't interfere with page content */
+  .bottom-nav ~ * {
+    margin-bottom: env(safe-area-inset-bottom);
   }
 </style>

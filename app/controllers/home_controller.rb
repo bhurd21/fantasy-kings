@@ -4,6 +4,12 @@ class HomeController < ApplicationController
   def index
     return redirect_to sign_in_path unless current_user
     
+    # If user is a viewer, show different content
+    if current_user.viewer?
+      @bets = DkGame.none
+      return
+    end
+    
     # Get current time in UTC for comparison
     current_time_utc = Time.current
     
@@ -35,6 +41,13 @@ class HomeController < ApplicationController
   end
 
   def create_bet
+    # Prevent viewers from betting
+    if current_user.viewer?
+      flash[:alert] = "Viewers cannot place bets. Please contact an admin for access."
+      redirect_to root_path
+      return
+    end
+    
     selected_bet = params[:selected_bet]
     stake = params[:stake].to_f
     
@@ -101,7 +114,9 @@ class HomeController < ApplicationController
   def week
     @week = params[:week].to_i
     @betting_histories = BettingHistory.includes(:user, :dk_game)
+                                       .joins(:user)
                                        .where(nfl_week: @week)
+                                       .where.not(users: { role: :viewer })
                                        .order(created_at: :desc)
     
     # Group betting histories by user
@@ -168,8 +183,8 @@ class HomeController < ApplicationController
   end
 
   def leaderboard
-    # Get all users with their betting histories
-    users = User.includes(:betting_histories).all
+    # Get all users with their betting histories (exclude viewers)
+    users = User.includes(:betting_histories).where.not(role: :viewer)
     
     # Calculate stats for each user
     @leaderboard = users.map do |user|

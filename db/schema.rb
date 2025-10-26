@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_26_020204) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_26_175357) do
   create_table "betting_histories", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "dk_game_id"

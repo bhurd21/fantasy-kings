@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   has_many :betting_histories, dependent: :destroy
 
-  enum :role, { member: 0, admin: 1 }
+  enum :role, { viewer: 0, player: 1, admin: 2 }
 
   WEEKLY_BUDGET = 10.0
   MIN_BET = 1.0

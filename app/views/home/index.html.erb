@@ -17,11 +17,17 @@
 <% end %>
 
 <div data-controller="betting">
-  <div class="bet-cards">
-    <% @bets.each do |bet| %>
-      <%= render partial: 'bet_card', locals: { bet: bet } %>
-    <% end %>
-  </div>
+  <% if @bets.present? %>
+    <div class="bet-cards">
+      <% @bets.each do |bet| %>
+        <%= render partial: 'bet_card', locals: { bet: bet } %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="no-bets-message">
+      <h2>Contact the site owner to play!</h2>
+    </div>
+  <% end %>
 
   <!-- Confirmation Modal -->
   <div class="modal hidden" data-betting-target="modal" data-action="click->betting#closeOnBackdrop">

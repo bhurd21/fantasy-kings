@@ -11,37 +11,37 @@
   <% if @user_bets.any? %>
     <% @user_bets.each_with_index do |(user, bets), index| %>
       <div class="user-group">
-        <div class="user-group-header">
-          <div class="user-info">
-            <span class="user-rank">#<%= index + 1 %></span>
-            <span class="user-name"><%= user.name %></span>
+        <%= link_to user_profile_path(user), class: "user-group-header-link" do %>
+          <div class="user-group-header">
+            <div class="user-info">
+              <span class="user-rank">#<%= index + 1 %></span>
+              <span class="user-name"><%= user.name %></span>
+            </div>
+            <div class="user-stats">
+              <span class="user-spent"><%= format_currency(@user_stats[user.id][:total_spent]) %> spent</span>
+              <span class="user-winnings <%= @user_stats[user.id][:total_winnings] > 0 ? 'positive' : '' %>">
+                <%= format_currency(@user_stats[user.id][:total_winnings]) %> won
+              </span>
+            </div>
           </div>
-          <div class="user-stats">
-            <span class="user-spent"><%= format_currency(@user_stats[user.id][:total_spent]) %> spent</span>
-            <span class="user-winnings <%= @user_stats[user.id][:total_winnings] > 0 ? 'positive' : '' %>">
-              <%= format_currency(@user_stats[user.id][:total_winnings]) %> won
-            </span>
-          </div>
-        </div>
+        <% end %>
         
         <% bets.each do |bet| %>
-          <%= link_to user_profile_path(bet.user), class: "bet-item-link" do %>
-            <div class="bet-item">
-              <div class="bet-details">
-                <%= bet.formatted_description %>
-              </div>
-              <div class="bet-footer">
-                <span class="bet-line"><%= bet.formatted_line %></span>
-                <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
-                <span class="bet-result <%= bet.result %>">
-                  <%= bet.result.humanize %>
-                </span>
-              </div>
-              <% if bet.winnings > 0 %>
-                <div class="individual-winnings">+<%= format_currency(bet.winnings) %></div>
-              <% end %>
+          <div class="bet-item">
+            <div class="bet-details">
+              <%= bet.formatted_description %>
             </div>
-          <% end %>
+            <div class="bet-footer">
+              <span class="bet-line"><%= bet.formatted_line %></span>
+              <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+              <span class="bet-result <%= bet.result %>">
+                <%= bet.result.humanize %>
+              </span>
+            </div>
+            <% if bet.winnings > 0 %>
+              <div class="individual-winnings">+<%= format_currency(bet.winnings) %></div>
+            <% end %>
+          </div>
         <% end %>
       </div>
     <% end %>
@@ -102,14 +102,30 @@
     margin-bottom: 24px;
   }
 
+  .user-group-header-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 8px;
+    transition: transform 0.2s;
+  }
+
+  .user-group-header-link:active {
+    transform: scale(0.98);
+  }
+
   .user-group-header {
     background: #212121;
     padding: 12px 16px;
     border-radius: 8px;
-    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+  }
+
+  .user-group-header:hover {
+    background: #2a2a2a;
   }
 
   .user-info {
@@ -150,23 +166,12 @@
     font-weight: bold;
   }
 
-  .bet-item-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    margin-bottom: 12px;
-    transition: transform 0.2s;
-  }
-
-  .bet-item-link:active {
-    transform: scale(0.98);
-  }
-
   .bet-item {
     background: #1a1a1a;
     border-radius: 8px;
     padding: 16px;
     position: relative;
+    margin-bottom: 12px;
   }
 
   .individual-winnings {

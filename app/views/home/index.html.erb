@@ -61,7 +61,18 @@
               } %>
             <div class="stake-error hidden" data-betting-target="stakeError"></div>
           </div>
+          
+          <div class="potential-winnings hidden" data-betting-target="potentialWinnings">
+            <div class="winnings-label">Potential Winnings:</div>
+            <div class="winnings-amount" data-betting-target="winningsAmount">$0.00</div>
+            <div class="total-payout">
+              <span>Total Payout: </span>
+              <span data-betting-target="totalPayout">$0.00</span>
+            </div>
+          </div>
+          
           <%= form.hidden_field :selected_bet, data: { betting_target: "selectedBet" } %>
+          <%= form.hidden_field :selected_odds, data: { betting_target: "selectedOdds" } %>
         </div>
 
         <div class="modal-footer">

@@ -2,7 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["modal", "betDescription", "stakeInput", "selectedBet", "budgetInfo", 
-                     "weeklyBudget", "budgetUsed", "budgetRemaining", "stakeError", "confirmButton", "currentWeek"]
+                     "weeklyBudget", "budgetUsed", "budgetRemaining", "stakeError", "confirmButton", "currentWeek",
+                     "selectedOdds", "potentialWinnings", "winningsAmount", "totalPayout"]
   
   connect() {
     console.log("Betting controller connected")
@@ -16,16 +17,19 @@ export default class extends Controller {
     const button = event.currentTarget
     const betId = button.dataset.betId
     const betDescription = button.dataset.betDescription
+    const betOdds = button.dataset.betOdds
     
-    // Store the selected bet
+    // Store the selected bet and odds
     this.selectedBetTarget.value = betId
+    this.selectedOddsTarget.value = betOdds
     
     // Update modal content
     this.betDescriptionTarget.textContent = betDescription
     
-    // Clear previous stake input
+    // Clear previous stake input and hide winnings
     this.stakeInputTarget.value = ""
     this.stakeErrorTarget.classList.add("hidden")
+    this.potentialWinningsTarget.classList.add("hidden")
     
     // Fetch and display budget info
     await this.loadBudgetInfo()
@@ -64,6 +68,7 @@ export default class extends Controller {
     
     if (isNaN(stake) || stake <= 0) {
       this.confirmButtonTarget.disabled = true
+      this.potentialWinningsTarget.classList.add("hidden")
       return
     }
     
@@ -79,17 +84,47 @@ export default class extends Controller {
       this.stakeErrorTarget.textContent = errorMessage
       this.stakeErrorTarget.classList.remove("hidden")
       this.confirmButtonTarget.disabled = true
+      this.potentialWinningsTarget.classList.add("hidden")
     } else {
       this.stakeErrorTarget.classList.add("hidden")
       this.confirmButtonTarget.disabled = false
+      this.calculatePotentialWinnings(stake)
     }
+  }
+  
+  calculatePotentialWinnings(stake) {
+    const odds = this.selectedOddsTarget.value
+    if (!odds || odds === "—") {
+      this.potentialWinningsTarget.classList.add("hidden")
+      return
+    }
+    
+    // Parse American odds (e.g., "+150", "-110")
+    const numericOdds = parseInt(odds.replace('+', ''))
+    let potentialWinnings = 0
+    
+    if (numericOdds > 0) {
+      // Positive odds: profit = (stake * odds) / 100
+      potentialWinnings = (stake * numericOdds) / 100
+    } else {
+      // Negative odds: profit = stake / (Math.abs(odds) / 100)
+      potentialWinnings = stake / (Math.abs(numericOdds) / 100)
+    }
+    
+    const totalPayout = stake + potentialWinnings
+    
+    this.winningsAmountTarget.textContent = `$${potentialWinnings.toFixed(2)}`
+    this.totalPayoutTarget.textContent = `$${totalPayout.toFixed(2)}`
+    this.potentialWinningsTarget.classList.remove("hidden")
   }
   
   closeModal() {
     this.modalTarget.classList.add("hidden")
     this.selectedBetTarget.value = ""
+    this.selectedOddsTarget.value = ""
     this.stakeInputTarget.value = ""
     this.stakeErrorTarget.classList.add("hidden")
+    this.potentialWinningsTarget.classList.add("hidden")
     this.confirmButtonTarget.disabled = false
   }
   

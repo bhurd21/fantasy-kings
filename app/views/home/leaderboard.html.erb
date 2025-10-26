@@ -4,25 +4,24 @@
 
 <div class="leaderboard-container">
   <% if @leaderboard.any? %>
-    <div class="leaderboard-table">
-      <div class="leaderboard-header">
-        <div class="col-rank">Rank</div>
-        <div class="col-name">Name</div>
-        <div class="col-winnings">Winnings</div>
-        <div class="col-stake">Stake</div>
-      </div>
-      
+    <div class="leaderboard-list">
       <% @leaderboard.each_with_index do |entry, index| %>
-        <%= link_to user_profile_path(entry[:user]), class: "leaderboard-row-link" do %>
-          <div class="leaderboard-row">
-            <div class="col-rank">
+        <%= link_to user_profile_path(entry[:user]), class: "leaderboard-item-link" do %>
+          <div class="leaderboard-item">
+            <div class="rank-section">
               <span class="rank-badge rank-<%= index + 1 %>">#<%= index + 1 %></span>
             </div>
-            <div class="col-name"><%= entry[:user].name %></div>
-            <div class="col-winnings <%= entry[:winnings] > 0 ? 'positive' : entry[:winnings] < 0 ? 'negative' : '' %>">
-              <%= format_currency(entry[:winnings]) %>
+            <div class="user-section">
+              <div class="user-name"><%= entry[:user].name %></div>
+              <div class="user-stats">
+                <span class="winnings <%= entry[:winnings] > 0 ? 'positive' : entry[:winnings] < 0 ? 'negative' : '' %>">
+                  <%= format_currency(entry[:winnings]) %> won
+                </span>
+                <span class="stake">
+                  <%= format_currency(entry[:stake]) %> bet
+                </span>
+              </div>
             </div>
-            <div class="col-stake"><%= format_currency(entry[:stake]) %></div>
           </div>
         <% end %>
       <% end %>
@@ -56,92 +55,89 @@
     padding: 16px;
   }
 
-  .leaderboard-table {
-    background: #1a1a1a;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .leaderboard-header {
-    display: grid;
-    grid-template-columns: 60px 1fr 100px 100px;
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    padding: 16px;
-    background: #212121;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #888;
-    font-weight: bold;
   }
 
-  .leaderboard-row-link {
+  .leaderboard-item-link {
     text-decoration: none;
     color: inherit;
     display: block;
-    transition: background 0.2s;
+    transition: transform 0.2s;
   }
 
-  .leaderboard-row-link:active {
-    background: #212121;
+  .leaderboard-item-link:active {
+    transform: scale(0.98);
   }
 
-  .leaderboard-row {
-    display: grid;
-    grid-template-columns: 60px 1fr 100px 100px;
-    gap: 12px;
+  .leaderboard-item {
+    background: #1a1a1a;
+    border-radius: 12px;
     padding: 16px;
-    border-top: 1px solid #2a2a2a;
+    display: flex;
     align-items: center;
+    gap: 16px;
   }
 
-  .col-rank {
+  .rank-section {
+    flex-shrink: 0;
+    width: 50px;
     text-align: center;
   }
 
+  .user-section {
+    flex-grow: 1;
+  }
+
   .rank-badge {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
     color: #4d9640;
   }
 
   .rank-badge.rank-1 {
     color: #FFD700;
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .rank-badge.rank-2 {
     color: #C0C0C0;
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .rank-badge.rank-3 {
     color: #CD7F32;
+    font-size: 22px;
+  }
+
+  .user-name {
     font-size: 18px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 4px;
   }
 
-  .col-name {
-    font-size: 16px;
-    font-weight: 500;
+  .user-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
   }
 
-  .col-winnings {
-    text-align: right;
-    font-size: 16px;
+  .winnings {
     font-weight: bold;
   }
 
-  .col-winnings.positive {
+  .winnings.positive {
     color: #4d9640;
   }
 
-  .col-winnings.negative {
+  .winnings.negative {
     color: #d32f2f;
   }
 
-  .col-stake {
-    text-align: right;
-    font-size: 14px;
+  .stake {
     color: #888;
   }
 

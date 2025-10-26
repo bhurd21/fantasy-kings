@@ -107,6 +107,12 @@ class HomeController < ApplicationController
     # Group betting histories by user
     @user_bets = @betting_histories.group_by(&:user)
     
+    # Sort bets within each user group by result order: Win, Pending, Push, Loss
+    result_order = { 'win' => 1, 'push' => 2, 'pending' => 3, 'loss' => 4 }
+    @user_bets.each do |user, bets|
+      @user_bets[user] = bets.sort_by { |bet| result_order[bet.result] || 5 }
+    end
+    
     # Calculate stats for each user and sort by winnings desc
     @user_stats = {}
     @user_bets.each do |user, bets|

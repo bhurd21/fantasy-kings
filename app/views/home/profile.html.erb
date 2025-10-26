@@ -1,6 +1,5 @@
 <div class="header">
   <h1><%= @user.name %></h1>
-  <%= link_to "Logout", logout_path, class: "logout-btn" %>
 </div>
 
 <div class="stats">
@@ -110,15 +109,6 @@
   .header h1 {
     margin: 0;
     color: white;
-  }
-
-  .logout-btn {
-    background: #d32f2f;
-    color: white;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
   }
 
   .stats {

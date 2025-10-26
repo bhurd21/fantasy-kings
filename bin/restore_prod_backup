@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+# Restore a specific production backup to development
+backup_file = ARGV[0]
+
+if backup_file.nil? || !File.exist?(backup_file)
+  puts "❌ Usage: bin/restore_prod_backup <backup_file>"
+  puts "Available backups:"
+  Dir.glob("db/backups/*.sql").sort.reverse.each do |file|
+    size_mb = File.size(file) / 1024.0 / 1024.0
+    puts "  #{file} (#{size_mb.round(2)} MB)"
+  end
+  exit 1
+end
+
+puts "🔄 Restoring #{backup_file} to development database..."
+
+# Reset development database and load backup
+system("DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:drop RAILS_ENV=development")
+system("bin/rails db:create RAILS_ENV=development")
+system("sqlite3 storage/development.sqlite3 < #{backup_file}")
+
+puts "✅ Development database restored from backup!"
+puts "📊 Record counts:"
+
+# Show record counts for verification
+system("cd #{__dir__}/.. && RAILS_ENV=development bin/rails runner 'puts \"Users: \#{User.count}\"; puts \"DK Games: \#{DkGame.count}\"; puts \"Betting Histories: \#{BettingHistory.count}\"'")
+
+puts "💡 Development database now matches the backup from: #{File.basename(backup_file)}"

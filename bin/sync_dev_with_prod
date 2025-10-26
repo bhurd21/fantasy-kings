@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+# Sync development database with production data
+require 'fileutils'
+
+BACKUP_DIR = "db/backups"
+TIMESTAMP = Time.now.strftime("%Y%m%d_%H%M%S")
+PROD_BACKUP_FILE = "#{BACKUP_DIR}/prod_backup_#{TIMESTAMP}.sql"
+
+# Ensure backup directory exists
+FileUtils.mkdir_p(BACKUP_DIR)
+
+puts "📥 Downloading production database backup..."
+
+# Step 1: Create backup on production server and download it
+puts "Executing SQL dump on production server..."
+
+# Capture the output directly, filtering out error messages
+backup_content = `bin/kamal app exec --quiet 'sqlite3 /rails/storage/production.sqlite3 .dump' 2>/dev/null`.lines.reject { |line|
+  line.match?(/ERROR|Failed|exit status|docker stdout|docker stderr|App Host|^\s*$/)
+}.join
+
+# Write clean SQL content to backup file
+File.write(PROD_BACKUP_FILE, backup_content)
+
+if File.exist?(PROD_BACKUP_FILE) && File.size(PROD_BACKUP_FILE) > 0
+  puts "✅ Production backup downloaded: #{PROD_BACKUP_FILE}"
+  
+  puts "🔄 Recreating development database with production data..."
+  
+  # Step 2: Reset development database and load production data
+  system("DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:drop RAILS_ENV=development")
+  system("bin/rails db:create RAILS_ENV=development")
+  system("sqlite3 storage/development.sqlite3 < #{PROD_BACKUP_FILE}")
+  
+  puts "✅ Development database synced with production data!"
+  puts "� Record counts:"
+  
+  # Show record counts for verification
+  puts "Running record count check..."
+  system("cd #{__dir__}/.. && RAILS_ENV=development bin/rails runner 'puts \"Users: \#{User.count}\"; puts \"DK Games: \#{DkGame.count}\"; puts \"Betting Histories: \#{BettingHistory.count}\"'")
+else
+  puts "❌ Failed to download production backup"
+  exit 1
+end

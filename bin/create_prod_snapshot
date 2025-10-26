@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+# Create production database snapshots
+require 'fileutils'
+
+BACKUP_DIR = "db/backups"
+TIMESTAMP = Time.now.strftime("%Y%m%d_%H%M%S")
+BACKUP_FILE = "#{BACKUP_DIR}/prod_snapshot_#{TIMESTAMP}.sql"
+
+# Ensure backup directory exists
+FileUtils.mkdir_p(BACKUP_DIR)
+
+puts "📸 Creating production database snapshot..."
+
+# Create SQL dump from production
+puts "Executing SQL dump on production server..."
+
+# Capture the output directly, filtering out error messages
+backup_content = `bin/kamal app exec --quiet 'sqlite3 /rails/storage/production.sqlite3 .dump' 2>/dev/null`.lines.reject { |line|
+  line.match?(/ERROR|Failed|exit status|docker stdout|docker stderr|App Host|^\s*$/)
+}.join
+
+# Write clean SQL content to backup file
+File.write(BACKUP_FILE, backup_content)
+
+if File.exist?(BACKUP_FILE) && File.size(BACKUP_FILE) > 0
+  puts "✅ Production snapshot created: #{BACKUP_FILE}"
+  
+  # Show file size
+  size_mb = File.size(BACKUP_FILE) / 1024.0 / 1024.0
+  puts "📊 Backup size: #{size_mb.round(2)} MB"
+  
+  # Show what's in the backup
+  puts "📋 Checking backup contents..."
+  tables = `bin/kamal app exec --quiet 'sqlite3 /rails/storage/production.sqlite3 "SELECT name FROM sqlite_master WHERE type=\\"table\\" AND name NOT LIKE \\"sqlite_%\\";"' 2>/dev/null`.lines.reject { |line|
+    line.match?(/ERROR|Failed|exit status|docker stdout|docker stderr|App Host|^\s*$/)
+  }.join.strip
+  puts tables
+else
+  puts "❌ Failed to create production snapshot"
+  exit 1
+end
+
+puts "💡 To restore this backup to development, run:"
+puts "   bin/restore_prod_backup #{BACKUP_FILE}"

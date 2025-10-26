@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   
   # Mobile nav routes
   get "week/:week", to: "home#week", as: :week
+  get "leaderboard", to: "home#leaderboard", as: :leaderboard
   get "profile", to: "home#profile"
   get "users/:id", to: "home#user_profile", as: :user_profile
   get "settings", to: "home#settings"

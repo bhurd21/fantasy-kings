@@ -11,12 +11,13 @@ class HomeController < ApplicationController
     @bets = DkGame.where('commence_time > ?', current_time_utc)
                   .order(commence_time: :asc)
                   .map do |game|
-      # Convert UTC time to local timezone for display
-      local_time = game.commence_time&.in_time_zone(Time.zone)
+      # Convert UTC time to EST/CST dual timezone display
+      est_time = game.commence_time&.in_time_zone('America/New_York')
+      cst_time = game.commence_time&.in_time_zone('America/Chicago')
       
       {
         id: game.id,
-        date: local_time&.strftime('%m/%d %I:%M%p'),
+        date: est_time ? "#{est_time.strftime('%b %-d')} #{cst_time.strftime('%-l').strip}/#{est_time.strftime('%-l').strip}#{est_time.strftime('%P')}" : nil,
         home_team: game.home_team,
         away_team: game.away_team,
         home_spread: format_spread(game.home_spread_point),
@@ -28,7 +29,7 @@ class HomeController < ApplicationController
         under_odds: format_odds(game.under_price),
         home_moneyline: format_odds(game.home_moneyline),
         away_moneyline: format_odds(game.away_moneyline),
-        update_time: game.bookmaker_last_update&.in_time_zone(Time.zone)&.strftime('Updated %I:%M%p')
+        update_time: game.bookmaker_last_update
       }
     end
   end
@@ -106,7 +107,7 @@ class HomeController < ApplicationController
     # Group betting histories by user
     @user_bets = @betting_histories.group_by(&:user)
     
-    # Calculate stats for each user
+    # Calculate stats for each user and sort by winnings desc
     @user_stats = {}
     @user_bets.each do |user, bets|
       @user_stats[user.id] = {
@@ -114,6 +115,9 @@ class HomeController < ApplicationController
         total_winnings: bets.sum(&:winnings)
       }
     end
+    
+    # Sort users by winnings (descending)
+    @user_bets = @user_bets.sort_by { |user, _| -@user_stats[user.id][:total_winnings] }.to_h
   end
 
   def profile
@@ -155,6 +159,23 @@ class HomeController < ApplicationController
 
   def settings
     # Placeholder for settings page
+  end
+
+  def leaderboard
+    # Get all users with their betting histories
+    users = User.includes(:betting_histories).all
+    
+    # Calculate stats for each user
+    @leaderboard = users.map do |user|
+      {
+        user: user,
+        winnings: user.total_winnings,
+        stake: user.total_wagered
+      }
+    end
+    
+    # Sort by winnings descending
+    @leaderboard.sort_by! { |entry| -entry[:winnings] }
   end
 
   def weekly_budget

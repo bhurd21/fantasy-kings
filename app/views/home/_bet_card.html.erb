@@ -56,6 +56,6 @@
   </div>
   
   <% if bet[:update_time] %>
-    <div class="bet-update-time"><%= bet[:update_time] %></div>
+    <div class="bet-update-time">Updated <%= time_ago_in_words_short(bet[:update_time]) %></div>
   <% end %>
 </div>

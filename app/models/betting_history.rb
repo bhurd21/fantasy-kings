@@ -4,7 +4,6 @@ class BettingHistory < ApplicationRecord
 
   enum :result, { pending: 0, win: 1, loss: 2, push: 3 }
 
-  validates :bet_type, presence: true
   validates :total_stake, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :nfl_week, presence: true, numericality: { in: 1..18 }
 

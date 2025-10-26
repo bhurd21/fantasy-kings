@@ -17,6 +17,15 @@
     <span>Week</span>
   <% end %>
   
+  <%= link_to leaderboard_path, class: "nav-item #{'active' if action_name == 'leaderboard'}" do %>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M8 21V13H4v8h4z"></path>
+      <path d="M16 21V9h-4v12h4z"></path>
+      <path d="M20 21V5h-4v16h4z"></path>
+    </svg>
+    <span>Leaderboard</span>
+  <% end %>
+  
   <%= link_to profile_path, class: "nav-item #{'active' if current_page?(profile_path)}" do %>
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -53,10 +62,11 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding: 8px 16px;
+    padding: 8px 8px;
     text-decoration: none;
     color: #888;
     transition: color 0.2s;
+    min-width: 60px;
   }
   
   .nav-item.active {

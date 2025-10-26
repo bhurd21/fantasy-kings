@@ -12,7 +12,7 @@
 
 ActiveRecord::Schema[8.0].define(version: 2025_10_25_213400) do
   create_table "betting_histories", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.integer "user_id"
     t.integer "dk_game_id"
     t.integer "nfl_week"
     t.string "bet_type", null: false
@@ -24,7 +24,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_25_213400) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email"
     t.index ["dk_game_id"], name: "index_betting_histories_on_dk_game_id"
+    t.index ["email"], name: "index_betting_histories_on_email"
     t.index ["nfl_week"], name: "index_betting_histories_on_nfl_week"
     t.index ["result"], name: "index_betting_histories_on_result"
     t.index ["user_id", "created_at"], name: "index_betting_histories_on_user_id_and_created_at"

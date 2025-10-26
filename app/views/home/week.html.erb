@@ -9,10 +9,13 @@
 
 <div class="bets-list">
   <% if @user_bets.any? %>
-    <% @user_bets.each do |user, bets| %>
+    <% @user_bets.each_with_index do |(user, bets), index| %>
       <div class="user-group">
         <div class="user-group-header">
-          <div class="user-name"><%= user.name %></div>
+          <div class="user-info">
+            <span class="user-rank">#<%= index + 1 %></span>
+            <span class="user-name"><%= user.name %></span>
+          </div>
           <div class="user-stats">
             <span class="user-spent"><%= format_currency(@user_stats[user.id][:total_spent]) %> spent</span>
             <span class="user-winnings <%= @user_stats[user.id][:total_winnings] > 0 ? 'positive' : '' %>">
@@ -104,13 +107,28 @@
     padding: 12px 16px;
     border-radius: 8px;
     margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-rank {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4d9640;
+    min-width: 35px;
   }
 
   .user-name {
     font-size: 16px;
     font-weight: bold;
     color: white;
-    margin-bottom: 4px;
   }
 
   .user-stats {

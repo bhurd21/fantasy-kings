@@ -68,20 +68,20 @@
   <h2>Betting History</h2>
   <% if @betting_histories.any? %>
     <% @betting_histories.each do |bet| %>
-      <div class="history-item">
-        <div class="history-header">
-          <span class="history-date"><%= bet.created_at.in_time_zone(Time.zone).strftime('%m/%d') %></span>
-          <span class="history-week">Week <%= bet.nfl_week %></span>
-          <span class="bet-result <%= bet.result %>"><%= bet.result.humanize %></span>
+      <div class="bet-item">
+        <div class="bet-details">
+          <%= bet.formatted_description %>
         </div>
-        <div class="history-bet"><%= bet.formatted_description %></div>
-        <div class="history-footer">
-          <span class="history-line"><%= bet.formatted_line %></span>
-          <span class="history-stake"><%= format_currency(bet.total_stake) %></span>
-          <span class="history-pl <%= bet.profit_loss >= 0 ? 'positive' : 'negative' %>">
-            <%= format_currency(bet.profit_loss) %>
+        <div class="bet-footer">
+          <span class="bet-line"><%= bet.formatted_line %></span>
+          <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
+          <span class="bet-result <%= bet.result %>">
+            <%= bet.result.humanize %>
           </span>
         </div>
+        <% if bet.winnings > 0 %>
+          <div class="individual-winnings">+<%= format_currency(bet.winnings) %></div>
+        <% end %>
       </div>
     <% end %>
   <% else %>
@@ -216,6 +216,16 @@
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 12px;
+    position: relative;
+  }
+
+  .individual-winnings {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #4d9640;
+    font-weight: bold;
+    font-size: 14px;
   }
 
   .history-header {
@@ -284,6 +294,85 @@
 
   .history-pl.negative {
     color: #d32f2f;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+  }
+
+
+  .bet-item {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .individual-winnings {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #4d9640;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .bet-user {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .bet-details {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .bet-line {
+    color: #4d9640;
+    margin-left: 8px;
+  }
+
+  .bet-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bet-stake {
+    color: #888;
+    font-size: 14px;
+  }
+
+  .bet-result {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .bet-result.pending {
+    background: #333;
+    color: #888;
+  }
+
+  .bet-result.win {
+    background: #4d9640;
+    color: white;
+  }
+
+  .bet-result.loss {
+    background: #d32f2f;
+    color: white;
+  }
+
+  .bet-result.push {
+    background: #ff9800;
+    color: white;
   }
 
   .empty-state {

@@ -144,7 +144,7 @@ export default class extends Controller {
   calculateCurrentWeek() {
     const currentDate = new Date()
     const year = currentDate.getFullYear()
-    const seasonStart = new Date(year, 8, 1) // September 1
+    const seasonStart = new Date(year, 8, 3) // September 3
     const daysSinceStart = Math.floor((currentDate - seasonStart) / (1000 * 60 * 60 * 24))
     const week = Math.floor(daysSinceStart / 7) + 1
     return Math.max(1, Math.min(week, 24))

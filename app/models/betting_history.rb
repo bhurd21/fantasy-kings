@@ -70,8 +70,8 @@ class BettingHistory < ApplicationRecord
     current_date = Date.current
     year = current_date.year
     
-    # NFL season start (September 1st)
-    season_start = Date.new(year, 9, 1)
+    # NFL season start (September 3rd)
+    season_start = Date.new(year, 9, 3)
     
     # Calculate week number
     days_since_start = (current_date - season_start).to_i

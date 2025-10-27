@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   def current_nfl_week
     current_date = Date.current
     year = current_date.year
-    season_start = Date.new(year, 9, 1)
+    season_start = Date.new(year, 9, 3)
     days_since_start = (current_date - season_start).to_i
     week = (days_since_start / 7.0).floor + 1
     [[week, 1].max, 24].min

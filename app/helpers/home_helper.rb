@@ -30,16 +30,13 @@ module HomeHelper
     
     # Convert to CST and EST for display
     cst_time = parsed_time.in_time_zone('Central Time (US & Canada)')
-    est_time = parsed_time.in_time_zone('Eastern Time (US & Canada)')
     
     # Format date as "Day, Mon DD" using CST time for consistency
     date_line = cst_time.strftime('%b %-d')
     
-    # Format times as "H:MM am/pm cst / H:MM am/pm est"
+    # Format times as "H:MM am/pm cst"
     cst_formatted = cst_time.strftime('%-l:%M %P') + ' cst'
-    est_formatted = est_time.strftime('%-l:%M %P') + ' est'
-    time_line = "#{cst_formatted} / #{est_formatted}"
     
-    { date: date_line, time: time_line }
+    { date: date_line, time: cst_formatted }
   end
 end

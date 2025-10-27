@@ -66,20 +66,28 @@
 <div class="history-section">
   <h2>Betting History</h2>
   <% if @betting_histories.any? %>
-    <% @betting_histories.each do |bet| %>
-      <div class="bet-item">
-        <div class="bet-details">
-          <%= bet.formatted_description %>
+    <% @betting_histories.group_by { |bet| bet.created_at.to_date }.each do |date, bets| %>
+      <div class="date-group">
+        <div class="date-separator">
+          <span class="date-text"><%= date.strftime("%m/%d/%y") %></span>
         </div>
-        <div class="bet-footer">
-          <span class="bet-line"><%= bet.formatted_line %></span>
-          <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
-          <span class="bet-result <%= bet.result %>">
-            <%= bet.result.humanize %>
-          </span>
-        </div>
-        <% if bet.winnings > 0 %>
-          <div class="individual-winnings">+<%= format_currency(bet.winnings) %></div>
+        <% bets.each do |bet| %>
+          <div class="bet-item">
+            <div class="bet-grid">
+              <div class="bet-description"><%= bet.formatted_description %></div>
+              <div class="bet-line"><%= bet.formatted_line %></div>
+              <div class="bet-stake"><%= format_currency(bet.total_stake) %></div>
+              <div class="bet-outcome <%= bet.result %>">
+                <% if bet.result == 'pending' %>
+                  <%= bet.result.humanize %>
+                <% elsif bet.winnings > 0 %>
+                  +<%= format_currency(bet.winnings) %>
+                <% else %>
+                  <%= format_currency(0) %>
+                <% end %>
+              </div>
+            </div>
+          </div>
         <% end %>
       </div>
     <% end %>
@@ -293,76 +301,77 @@
   }
 
 
-  .bet-item {
-    background: #1a1a1a;
-    border-radius: 8px;
-    padding: 16px;
-    margin: 16px 0;
+  .date-group {
+    margin-bottom: 12px;
+  }
+
+  .date-separator {
+    text-align: center;
+    margin: 12px 0 16px 0;
     position: relative;
   }
 
-  .individual-winnings {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    color: #4d9640;
-    font-weight: bold;
-    font-size: 14px;
-  }
-
-  .bet-user {
-    font-size: 14px;
+  .date-text {
+    background: #111;
+    padding: 0 16px;
     color: #888;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .bet-item {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 8px;
     margin-bottom: 8px;
   }
 
-  .bet-details {
+  .bet-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 0.8fr 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .bet-description {
     font-size: 16px;
-    margin-bottom: 8px;
+    color: white;
   }
 
   .bet-line {
     color: #4d9640;
-    margin-left: 8px;
-  }
-
-  .bet-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-size: 14px;
+    text-align: right;
   }
 
   .bet-stake {
     color: #888;
     font-size: 14px;
+    text-align: right;
   }
 
-  .bet-result {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    text-transform: uppercase;
+  .bet-outcome {
+    font-size: 14px;
+    text-align: right;
+    font-weight: bold;
   }
 
-  .bet-result.pending {
-    background: #333;
+  .bet-outcome.pending {
     color: #888;
+    text-transform: uppercase;
+    font-size: 12px;
   }
 
-  .bet-result.win {
-    background: #4d9640;
-    color: white;
+  .bet-outcome.win {
+    color: #4d9640;
   }
 
-  .bet-result.loss {
-    background: #d32f2f;
-    color: white;
+  .bet-outcome.loss {
+    color: #d32f2f;
   }
 
-  .bet-result.push {
-    background: #ff9800;
-    color: white;
+  .bet-outcome.push {
+    color: #ff9800;
   }
 
   .empty-state {

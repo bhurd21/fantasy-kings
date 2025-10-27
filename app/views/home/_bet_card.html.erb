@@ -1,7 +1,15 @@
 <div class="bet-card">
   <div class="betting-grid">
     <!-- Labels Column -->
-    <div class="bet-commence-time"><%= bet[:date] %></div>
+    <div class="bet-commence-time">
+      <% formatted_time = format_bet_commence_time(bet[:date]) %>
+      <% if formatted_time %>
+        <div class="bet-date"><%= formatted_time[:date] %></div>
+        <div class="bet-time"><%= formatted_time[:time] %></div>
+      <% else %>
+        <%= bet[:date] %>
+      <% end %>
+    </div>
     <div class="bet-label">spread</div>
     <div class="bet-label">totals</div>
     <div class="bet-label">winner</div>

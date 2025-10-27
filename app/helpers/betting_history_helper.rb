@@ -34,16 +34,21 @@ module BettingHistoryHelper
     return line_value if line_value.blank?
     
     case bet_type
-    when 'home_moneyline', 'away_moneyline'
+    when 'home_moneyline', 'away_moneyline', 'moneyline'
       format_odds(line_value)
-    when 'home_spread', 'away_spread'
+    when 'home_spread', 'away_spread', 'spread'
       odds = line_value.to_i
       format_odds(odds)
-    when 'over', 'under'
+    when 'over', 'under', 'total_over', 'total_under'
       odds = line_value.to_i
       format_odds(odds)
     else
-      line_value
+      # For any other bet type, still format as odds if it's a number
+      if line_value.to_s.match?(/^-?\d+$/)
+        format_odds(line_value)
+      else
+        line_value
+      end
     end
   end
 

@@ -21,4 +21,25 @@ module HomeHelper
       "#{weeks}w ago"
     end
   end
+
+  def format_bet_commence_time(time)
+    return unless time
+    
+    # Parse the time if it's a string
+    parsed_time = time.is_a?(String) ? Time.parse(time) : time
+    
+    # Convert to CST and EST for display
+    cst_time = parsed_time.in_time_zone('Central Time (US & Canada)')
+    est_time = parsed_time.in_time_zone('Eastern Time (US & Canada)')
+    
+    # Format date as "Day, Mon DD" using CST time for consistency
+    date_line = cst_time.strftime('%b %-d')
+    
+    # Format times as "H:MM am/pm cst / H:MM am/pm est"
+    cst_formatted = cst_time.strftime('%-l:%M %P') + ' cst'
+    est_formatted = est_time.strftime('%-l:%M %P') + ' est'
+    time_line = "#{cst_formatted} / #{est_formatted}"
+    
+    { date: date_line, time: time_line }
+  end
 end

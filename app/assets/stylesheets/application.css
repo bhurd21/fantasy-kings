@@ -8,3 +8,19 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Bet card time formatting */
+.bet-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B7280;
+  line-height: 1.2;
+}
+
+.bet-time {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6B7280;
+  line-height: 1.2;
+  margin-top: 2px;
+}

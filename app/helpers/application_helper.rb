@@ -48,9 +48,6 @@ module ApplicationHelper
     
     if current_user.admin?
       minutes_since >= 1 # Show after 1 minute
-    elsif current_user.player?
-      hours_since = ((Time.current - last_updated) / 1.hour).round
-      hours_since >= 5 # Show after 5 hours
     else
       false # Viewers don't see the banner
     end

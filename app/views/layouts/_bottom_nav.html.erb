@@ -49,8 +49,8 @@
     left: 0;
     right: 0;
     width: 100%;
-    background: #1a1a1a;
-    border-top: 1px solid #333;
+    background: <%= Rails.env.development? ? '#ffffff' : '#1a1a1a' %>;
+    border-top: 1px solid <%= Rails.env.development? ? '#ddd' : '#333' %>;
     display: flex;
     justify-content: space-around;
     

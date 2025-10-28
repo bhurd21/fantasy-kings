@@ -28,14 +28,6 @@
 <% if current_user.admin? %>
   <div class="admin-section">
     <h2>Admin: Manage Bet Results</h2>
-    
-    <div class="admin-actions">
-      <button id="refreshGamesBtn" class="refresh-games-btn">
-        <span class="refresh-text">Refresh Games</span>
-        <span class="refresh-spinner hidden">⟳</span>
-      </button>
-    </div>
-    
     <% betting_histories = BettingHistory.includes(:user, :dk_game).order(created_at: :desc) %>
     <% pending_count = betting_histories.pending.count %>
     <% all_count = betting_histories.count %>
@@ -156,40 +148,6 @@
     margin-bottom: 20px;
   }
 
-  .refresh-games-btn {
-    background: #4d9640;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .refresh-games-btn:hover:not(:disabled) {
-    background: #5db04f;
-  }
-
-  .refresh-games-btn:disabled {
-    background: #666;
-    cursor: not-allowed;
-  }
-
-  .refresh-spinner {
-    display: inline-block;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
   .filter-toggle {
     display: flex;
     gap: 8px;
@@ -300,59 +258,6 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Refresh games functionality
-    const refreshBtn = document.getElementById('refreshGamesBtn');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', function() {
-        const refreshText = this.querySelector('.refresh-text');
-        const refreshSpinner = this.querySelector('.refresh-spinner');
-        
-        // Disable button and show spinner
-        this.disabled = true;
-        refreshText.textContent = 'Updating...';
-        refreshSpinner.classList.remove('hidden');
-        
-        fetch('/admin/refresh_games', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Show success feedback
-            if (data.message.includes('started')) {
-              // Production: job queued
-              refreshText.textContent = 'Update Started';
-            } else {
-              // Development: completed
-              refreshText.textContent = 'Updated!';
-            }
-            refreshSpinner.classList.add('hidden');
-            
-            // Reset after 3 seconds
-            setTimeout(() => {
-              refreshText.textContent = 'Refresh Games';
-              this.disabled = false;
-            }, 3000);
-          } else {
-            throw new Error(data.errors ? data.errors.join(', ') : 'Update failed');
-          }
-        })
-        .catch(error => {
-          console.error('Error refreshing games:', error);
-          alert('Error refreshing games: ' + error.message);
-          
-          // Reset button
-          refreshText.textContent = 'Refresh Games';
-          refreshSpinner.classList.add('hidden');
-          this.disabled = false;
-        });
-      });
-    }
-
     // Filter toggle functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
     const betItems = document.querySelectorAll('.bet-management-item');

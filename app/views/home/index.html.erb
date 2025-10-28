@@ -16,6 +16,20 @@
   <div class="flash-alert"><%= flash[:alert] %></div>
 <% end %>
 
+<% if should_show_refresh_banner? %>
+  <div class="refresh-banner">
+    <div class="refresh-banner-content">
+      <div class="refresh-banner-text">
+        <p>Odds last updated <strong><%= time_ago_in_words_short(games_last_updated_at) %></strong>.</p>
+      </div>
+      <button id="homeRefreshGamesBtn" class="refresh-banner-button">
+        <span class="refresh-text">Refresh Odds</span>
+        <span class="refresh-spinner hidden">⟳</span>
+      </button>
+    </div>
+  </div>
+<% end %>
+
 <div data-controller="betting">
   <% if @bets.present? %>
     <div class="bet-cards">
@@ -89,5 +103,151 @@
     </div>
   </div>
 </div>
+
+<style>
+  .refresh-banner {
+    background: #2a2a2a;
+    border-bottom: 1px solid #444;
+    padding: 8px;
+    margin: 0;
+  }
+
+  .refresh-banner-content {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .refresh-banner-text {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .refresh-banner-text p {
+    margin: 0 0 8px 0;
+  }
+
+  .refresh-banner-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .refresh-banner-text a {
+    color: #4d9640;
+    text-decoration: none;
+  }
+
+  .refresh-banner-text a:hover {
+    text-decoration: underline;
+  }
+
+  .refresh-banner-button {
+    background: #4d9640;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    min-width: 140px;
+    justify-content: center;
+  }
+
+  .refresh-banner-button:hover:not(:disabled) {
+    background: #5db04f;
+  }
+
+  .refresh-banner-button:disabled {
+    background: #666;
+    cursor: not-allowed;
+  }
+
+  .refresh-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (min-width: 768px) {
+    .refresh-banner-content {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .refresh-banner-text {
+      flex: 1;
+      margin-right: 20px;
+    }
+
+    .refresh-banner-button {
+      align-self: auto;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const homeRefreshBtn = document.getElementById('homeRefreshGamesBtn');
+    if (homeRefreshBtn) {
+      homeRefreshBtn.addEventListener('click', function() {
+        const refreshText = this.querySelector('.refresh-text');
+        const refreshSpinner = this.querySelector('.refresh-spinner');
+        
+        // Disable button and show spinner
+        this.disabled = true;
+        refreshText.textContent = 'Updating...';
+        refreshSpinner.classList.remove('hidden');
+        
+        fetch('/admin/refresh_games', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success feedback
+            refreshText.textContent = 'Updated!';
+            refreshSpinner.classList.add('hidden');
+            
+            // Reload the page after a short delay to show updated odds
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          } else {
+            throw new Error(data.errors ? data.errors.join(', ') : 'Update failed');
+          }
+        })
+        .catch(error => {
+          console.error('Error refreshing games:', error);
+          alert('Error refreshing games: ' + error.message);
+          
+          // Reset button
+          refreshText.textContent = 'Refresh Odds';
+          refreshSpinner.classList.add('hidden');
+          this.disabled = false;
+        });
+      });
+    }
+  });
+</script>
 
 <%= render partial: 'betting_styles' %>

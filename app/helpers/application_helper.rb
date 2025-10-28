@@ -32,4 +32,27 @@ module ApplicationHelper
       'bg-gray-100 text-gray-800'
     end
   end
+
+  def games_last_updated_at
+    # Get the most recent update time from bookmaker_last_update or updated_at
+    DkGame.maximum(:bookmaker_last_update) || DkGame.maximum(:updated_at)
+  end
+
+  def should_show_refresh_banner?
+    return false unless current_user
+    
+    last_updated = games_last_updated_at
+    return false unless last_updated
+    
+    minutes_since = ((Time.current - last_updated) / 1.minute).round
+    
+    if current_user.admin?
+      minutes_since >= 1 # Show after 1 minute
+    elsif current_user.player?
+      hours_since = ((Time.current - last_updated) / 1.hour).round
+      hours_since >= 5 # Show after 5 hours
+    else
+      false # Viewers don't see the banner
+    end
+  end
 end

@@ -237,7 +237,7 @@ class HomeController < ApplicationController
   end
 
   def refresh_games
-    unless current_user&.admin?
+    unless current_user&.admin? || current_user&.player?
       render json: { success: false, errors: ['Unauthorized access'] }, status: :unauthorized
       return
     end

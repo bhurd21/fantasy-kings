@@ -64,7 +64,6 @@
 </script>
 
 <div class="history-section">
-  <h2>Betting History</h2>
   <% if @betting_histories.any? %>
     <% @betting_histories.group_by { |bet| bet.created_at.to_date }.each do |date, bets| %>
       <div class="date-group">
@@ -120,24 +119,27 @@
   }
 
   .stats {
-    padding: 16px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
   }
 
   .stat-card-large {
     background: #1a1a1a;
     border-radius: 12px;
-    padding: 20px;
+    padding: 12px;
   }
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 4px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #333;
   }
 
@@ -201,11 +203,12 @@
   }
 
   .history-section {
-    padding: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .history-section h2 {
-    margin: 0 0 16px 0;
+    margin: 0;
     font-size: 18px;
   }
 
@@ -307,7 +310,7 @@
 
   .date-separator {
     text-align: center;
-    margin: 12px 0 16px 0;
+    margin: 0 0 4px 0;
     position: relative;
   }
 

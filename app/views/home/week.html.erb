@@ -16,7 +16,7 @@
             <div class="user-header-grid">
               <div class="user-info">
                 <span class="user-rank">#<%= index + 1 %></span>
-                <span class="user-name"><%= user.name %></span>
+                <span class="user-name"><%= user.display_name %></span>
               </div>
               <div class="user-line-placeholder"></div>
               <div class="user-spent"><%= format_currency(@user_stats[user.id][:total_spent]) %></div>

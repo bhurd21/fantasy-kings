@@ -44,4 +44,12 @@ class User < ApplicationRecord
   def weekly_budget_remaining(week)
     WEEKLY_BUDGET - weekly_budget_used(week)
   end
+
+  def display_name
+    nickname.present? ? nickname : name
+  end
+
+  def has_nickname?
+    nickname.present?
+  end
 end

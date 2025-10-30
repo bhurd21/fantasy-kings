@@ -12,7 +12,7 @@
               <span class="rank-badge rank-<%= index + 1 %>">#<%= index + 1 %></span>
             </div>
             <div class="user-section">
-              <div class="user-name"><%= entry[:user].name %></div>
+              <div class="user-name"><%= entry[:user].display_name %></div>
               <div class="user-stats">
                 <span class="winnings <%= entry[:winnings] > 0 ? 'positive' : entry[:winnings] < 0 ? 'negative' : '' %>">
                   <%= format_currency(entry[:winnings]) %> won

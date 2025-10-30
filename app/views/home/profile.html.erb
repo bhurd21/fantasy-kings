@@ -1,5 +1,12 @@
 <div class="header">
-  <h1><%= @user.name %></h1>
+  <div class="user-title">
+    <% if @user.has_nickname? %>
+      <h1><%= @user.nickname %></h1>
+      <div class="real-name"><%= @user.name %></div>
+    <% else %>
+      <h1><%= @user.name %></h1>
+    <% end %>
+  </div>
 </div>
 
 <div class="stats">
@@ -116,6 +123,22 @@
   .header h1 {
     margin: 0;
     color: white;
+  }
+
+  .user-title {
+    flex: 1;
+  }
+
+  .user-title h1 {
+    margin: 0;
+    color: white;
+    line-height: 1.2;
+  }
+
+  .real-name {
+    color: #888;
+    font-size: 16px;
+    margin-top: 2px;
   }
 
   .stats {

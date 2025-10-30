@@ -13,6 +13,25 @@
     <div class="setting-value"><%= current_user.name %></div>
   </div>
   
+  <div class="setting-item nickname-setting">
+    <div class="setting-label">Nickname</div>
+    <%= form_with url: update_nickname_path, method: :patch, local: true, class: "nickname-form" do |form| %>
+      <div class="nickname-input-group">
+        <%= form.text_field :nickname, 
+            value: current_user.nickname, 
+            placeholder: "Enter a nickname (optional)", 
+            class: "nickname-input",
+            maxlength: 50 %>
+        <%= form.submit "Save", class: "nickname-save-btn" %>
+      </div>
+    <% end %>
+    <% if current_user.nickname.present? %>
+      <div class="nickname-current">
+        Currently displayed as: <strong><%= current_user.nickname %></strong>
+      </div>
+    <% end %>
+  </div>
+  
   <% if current_user.admin? %>
     <div class="setting-item">
       <div class="setting-label">Role</div>
@@ -46,7 +65,7 @@
         <% betting_histories.each do |bet| %>
           <div class="bet-management-item" data-result="<%= bet.result %>">
             <div class="bet-info">
-              <div class="bet-user-name"><%= bet.user.name %></div>
+              <div class="bet-user-name"><%= bet.user.display_name %></div>
               <div class="bet-description"><%= bet.formatted_description %></div>
               <div class="bet-meta">
                 <span class="bet-week">Week <%= bet.nfl_week %></span>
@@ -131,6 +150,68 @@
   .admin-badge {
     color: #4d9640;
     font-weight: bold;
+  }
+
+  .nickname-setting {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .nickname-form {
+    margin-top: 8px;
+  }
+
+  .nickname-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .nickname-input {
+    padding: 8px 12px;
+    background: #212121;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    width: 70%;
+    font-size: 14px;
+  }
+
+  .nickname-input:focus {
+    outline: none;
+    border-color: #4d9640;
+  }
+
+  .nickname-input::placeholder {
+    color: #666;
+  }
+
+  .nickname-save-btn {
+    padding: 8px 16px;
+    background: #4d9640;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  .nickname-save-btn:hover {
+    background: #5db04f;
+  }
+
+  .nickname-current {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #888;
+  }
+
+  .nickname-current strong {
+    color: #4d9640;
   }
 
   .admin-section {

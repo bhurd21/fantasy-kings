@@ -176,6 +176,23 @@ class HomeController < ApplicationController
     # Placeholder for settings page
   end
 
+  def update_nickname
+    nickname = params[:nickname].to_s.strip
+    nickname = nil if nickname.blank?
+    
+    if current_user.update(nickname: nickname)
+      if nickname.present?
+        flash[:notice] = "Nickname updated successfully!"
+      else
+        flash[:notice] = "Nickname removed successfully!"
+      end
+    else
+      flash[:alert] = "Failed to update nickname. Please try again."
+    end
+    
+    redirect_to settings_path
+  end
+
   def leaderboard
     # Get all users with their betting histories (exclude viewers)
     users = User.includes(:betting_histories).where.not(role: :viewer)

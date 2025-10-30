@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   get "profile", to: "home#profile"
   get "users/:id", to: "home#user_profile", as: :user_profile
   get "settings", to: "home#settings"
+  patch "update_nickname", to: "home#update_nickname", as: :update_nickname
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

@@ -33,5 +33,25 @@ class ApplicationController < ActionController::Base
     [[week, 1].max, 24].min
   end
   
-  helper_method :current_user, :current_nfl_week
+  def nfl_week_for_date(date)
+    return nil unless date
+    
+    date_time = date.in_time_zone('Eastern Time (US & Canada)')
+    year = date_time.year
+    
+    # Weeks will change on Tuesday at 3 AM EST
+    season_start = Time.zone.parse("#{year}-09-02 03:00:00")
+    
+    hours_since_start = ((date_time - season_start) / 1.hour).floor
+    days_since_start = (hours_since_start / 24.0).floor
+    week = (days_since_start / 7.0).floor + 1
+    [[week, 1].max, 24].min
+  end
+  
+  def same_nfl_week?(date)
+    return false unless date
+    nfl_week_for_date(date) == current_nfl_week
+  end
+  
+  helper_method :current_user, :current_nfl_week, :nfl_week_for_date, :same_nfl_week?
 end

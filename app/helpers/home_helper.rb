@@ -24,19 +24,6 @@ module HomeHelper
 
   def format_bet_commence_time(time)
     return unless time
-    
-    # Parse the time if it's a string
-    parsed_time = time.is_a?(String) ? Time.parse(time) : time
-    
-    # Convert to CST and EST for display
-    cst_time = parsed_time.in_time_zone('Central Time (US & Canada)')
-    
-    # Format date as "Day, Mon DD" using CST time for consistency
-    date_line = cst_time.strftime('%b %-d')
-    
-    # Format times as "H:MM am/pm cst"
-    cst_formatted = cst_time.strftime('%-l:%M %P') + ' cst'
-    
-    { date: date_line, time: cst_formatted }
+    { date: time.strftime('%a %b %-d'), time: time.strftime('%-l:%M %p %Z') }
   end
 end

@@ -9,21 +9,13 @@ class HomeController < ApplicationController
       @bets = DkGame.none
       return
     end
-    
-    # Get current time in UTC for comparison
-    current_time_utc = Time.current
-    
-    # Filter and sort games
-    @bets = DkGame.where('commence_time > ?', current_time_utc)
+    current_time = Time.current
+    @bets = DkGame.where('commence_time > ?', current_time)
                   .order(commence_time: :asc)
                   .map do |game|
-      # Convert UTC time to EST/CST dual timezone display
-      est_time = game.commence_time&.in_time_zone('America/New_York')
-      cst_time = game.commence_time&.in_time_zone('America/Chicago')
-      
       {
         id: game.id,
-        date: est_time ? "#{est_time.strftime('%b %-d')} #{cst_time.strftime('%-l').strip}/#{est_time.strftime('%-l').strip}#{est_time.strftime('%P')}" : nil,
+        date: game.commence_time.in_time_zone(Time.zone),
         home_team: game.home_team,
         away_team: game.away_team,
         home_spread: format_spread(game.home_spread_point),

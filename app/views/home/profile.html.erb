@@ -68,7 +68,7 @@
     <% @betting_histories.group_by { |bet| bet.created_at.to_date }.each do |date, bets| %>
       <div class="date-group">
         <div class="date-separator">
-          <span class="date-text"><%= date.strftime("%m/%d/%y") %></span>
+          <span class="date-text"><%= date.strftime("%a - %m/%d/%y") %></span>
         </div>
         <% bets.each do |bet| %>
           <div class="bet-item">

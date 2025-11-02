@@ -14,10 +14,6 @@ development:
     class: UpdateDkGamesJob
     queue: default
     schedule: every 5 hours
-  place_liams_line:
-    class: PlaceLiamsLineJob
-    queue: default
-    schedule: at 7am on Sunday
 
 production:
   clear_solid_queue_finished_jobs:
@@ -27,7 +23,3 @@ production:
     class: UpdateDkGamesJob
     queue: default
     schedule: every 5 hours
-  place_liams_line:
-    class: PlaceLiamsLineJob
-    queue: default
-    schedule: at 7am on Sunday

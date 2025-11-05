@@ -9,11 +9,10 @@ class HomeController < ApplicationController
       @bets = DkGame.none
       return
     end
-    current_time = Time.current
-    # Show games in current_nfl_week that have not started yet
-    @bets = DkGame.where('commence_time > ?', current_time)
-                  .select { |game| same_nfl_week?(game.commence_time) }
-                  .sort_by(&:commence_time)
+    lower_bound = Time.current
+    upper_bound = lower_bound + 6.days
+    @bets = DkGame.where('commence_time > ? AND commence_time <= ?', lower_bound, upper_bound)
+              .order(:commence_time)
                   .map do |game|
       {
         id: game.id,

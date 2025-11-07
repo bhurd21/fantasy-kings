@@ -65,6 +65,10 @@ class UpdateDkGamesJob < ApplicationJob
     end
 
     odds_data = JSON.parse(response.body)
+    
+    # Save odds snapshot to file
+    save_odds_snapshot(response.body, sport)
+    
     remaining_requests = response['x-requests-remaining']
     Rails.logger.info "Retrieved #{odds_data.size} events, #{remaining_requests || 'N/A'} requests remaining"
     
@@ -260,5 +264,16 @@ class UpdateDkGamesJob < ApplicationJob
   def parse_float(value)
     return nil if value.nil? || value.to_s.empty?
     value.to_f
+  end
+
+  def save_odds_snapshot(json_response, sport)
+    timestamp = Time.current.strftime("%m-%d-%Y-%I-%M-%p")
+    filename = "odds-snapshot-#{sport}-#{timestamp}.json"
+    filepath = Rails.root.join('db', 'odds-history', filename)
+    
+    File.write(filepath, json_response)
+    Rails.logger.info "Saved odds snapshot to #{filepath}"
+  rescue => e
+    Rails.logger.error "Failed to save odds snapshot: #{e.message}"
   end
 end

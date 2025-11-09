@@ -7,7 +7,7 @@ image: hurdbr/fantasykings
 # Deploy to these servers.
 servers:
   web:
-    - 18.118.122.92
+    - 18.116.85.223
   # job:
   #   hosts:
   #     - 192.168.0.1

@@ -280,6 +280,13 @@ class HomeController < ApplicationController
         return
       end
 
+      # Check if user already has a bet for this week
+      current_week = BettingHistory.new.send(:calculate_current_nfl_week)
+      if BettingHistory.exists?(user_id: 4, nfl_week: current_week)
+        render json: { success: false, errors: ['Liam already has a bet placed for this week'] }, status: :unprocessable_entity
+        return
+      end
+
       # Determine if Lions are home or away and set bet type and line value
       if lions_game.home_team.include?('Detroit Lions')
         bet_type = 'home_winner'

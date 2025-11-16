@@ -262,6 +262,55 @@ class HomeController < ApplicationController
     end
   end
 
+  def place_liams_bet
+    unless current_user&.admin?
+      render json: { success: false, errors: ['Unauthorized access'] }, status: :unauthorized
+      return
+    end
+
+    begin
+      # Find the next upcoming Detroit Lions game
+      lions_game = DkGame.where('commence_time > ?', Time.current)
+                         .where('home_team LIKE ? OR away_team LIKE ?', '%Detroit Lions%', '%Detroit Lions%')
+                         .order(:commence_time)
+                         .first
+
+      unless lions_game
+        render json: { success: false, errors: ['No upcoming Detroit Lions game found'] }, status: :unprocessable_entity
+        return
+      end
+
+      # Determine if Lions are home or away and set bet type and line value
+      if lions_game.home_team.include?('Detroit Lions')
+        bet_type = 'home_winner'
+        line_value = lions_game.home_moneyline
+      else
+        bet_type = 'away_winner'
+        line_value = lions_game.away_moneyline
+      end
+
+      # Create betting history for user ID 4 (Liam)
+      betting_history = BettingHistory.create!(
+        user_id: 4,
+        dk_game: lions_game,
+        bet_type: bet_type,
+        line_value: line_value.to_s,
+        total_stake: 10.0,
+        result: :pending
+      )
+
+      render json: { 
+        success: true, 
+        message: "Successfully placed Liam's bet: #{betting_history.formatted_description} - Stake: $10.00",
+        game: "#{lions_game.away_team} @ #{lions_game.home_team}",
+        commence_time: lions_game.commence_time.strftime('%m/%d/%Y %I:%M %p')
+      }
+    rescue => e
+      Rails.logger.error "Failed to place Liam's bet: #{e.message}"
+      render json: { success: false, errors: [e.message] }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def get_line_value(game, bet_type)

@@ -47,6 +47,13 @@
 <% if current_user.admin? %>
   <div class="admin-section">
     <h2>Admin: Manage Bet Results</h2>
+    
+    <div class="admin-actions">
+      <button id="placeLiamsBet" class="place-liams-bet-btn">
+        Place Liams Bet
+      </button>
+    </div>
+    
     <% betting_histories = BettingHistory.includes(:user, :dk_game).order(created_at: :desc) %>
     <% pending_count = betting_histories.pending.count %>
     <% all_count = betting_histories.count %>
@@ -229,6 +236,31 @@
     margin-bottom: 20px;
   }
 
+  .admin-actions {
+    margin-bottom: 20px;
+  }
+
+  .place-liams-bet-btn {
+    padding: 12px 24px;
+    background: #4d9640;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  .place-liams-bet-btn:hover {
+    background: #5db04f;
+  }
+
+  .place-liams-bet-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+  }
+
   .filter-toggle {
     display: flex;
     gap: 8px;
@@ -339,6 +371,44 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Place Liam's Bet button handler
+    const placeLiamsBetBtn = document.getElementById('placeLiamsBet');
+    if (placeLiamsBetBtn) {
+      placeLiamsBetBtn.addEventListener('click', function() {
+        const button = this;
+        const originalText = button.textContent;
+        
+        // Disable button and show loading state
+        button.disabled = true;
+        button.textContent = 'Placing Bet...';
+        
+        fetch('/admin/place_liams_bet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(`Success! ${data.message}\nGame: ${data.game}\nKickoff: ${data.commence_time}`);
+          } else {
+            alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          console.error('Error placing Liam\'s bet:', error);
+          alert('Error placing bet. Please try again.');
+        })
+        .finally(() => {
+          // Re-enable button and restore text
+          button.disabled = false;
+          button.textContent = originalText;
+        });
+      });
+    }
+
     // Filter toggle functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
     const betItems = document.querySelectorAll('.bet-management-item');

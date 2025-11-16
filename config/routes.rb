@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   
   # Admin
   post "admin/refresh_games", to: "home#refresh_games", as: :refresh_games
+  post "admin/place_liams_bet", to: "home#place_liams_bet", as: :place_liams_bet
   
   # Mobile nav routes
   get "week/:week", to: "home#week", as: :week

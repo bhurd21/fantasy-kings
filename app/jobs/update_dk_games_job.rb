@@ -5,7 +5,7 @@ require 'json'
 class UpdateDkGamesJob < ApplicationJob
   queue_as :default
 
-  API_KEY = "fb914943045320f97eeafc5b2f1fd3e3".freeze
+  API_KEY = "a2db116fab50bf0df3e4c6cba830c772".freeze
   BASE_URL = "https://api.the-odds-api.com/v4/sports".freeze
   SPORTS = {
     'nfl' => 'americanfootball_nfl',

@@ -119,7 +119,7 @@ class HomeController < ApplicationController
 
     # Sort bets within each user group by commence time descending (soonest game first)
     @user_bets.each do |user, bets|
-      @user_bets[user] = bets.sort_by { |bet| bet.dk_game&.commence_time || Time.current }.reverse
+      @user_bets[user] = bets.sort_by { |bet| bet.dk_game&.commence_time || Time.current }
     end
 
     # Calculate stats for each user and sort by winnings desc

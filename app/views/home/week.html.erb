@@ -15,7 +15,7 @@
           <div class="user-group-header">
             <div class="user-header-grid">
               <div class="user-info">
-                <span class="user-rank">#<%= index + 1 %></span>
+                <span class="user-rank rank-<%= index + 1 %>">#<%= index + 1 %></span>
                 <span class="user-name"><%= user.display_name %></span>
               </div>
               <div class="user-line-placeholder"></div>
@@ -29,8 +29,14 @@
         
         <% bets.each do |bet| %>
           <div class="bet-item">
+            <% if bet.dk_game&.commence_time %>
+              <div class="bet-commence-time"><%= format_bet_commence_time_compact(bet.dk_game.commence_time) %></div>
+            <% end %>
             <div class="bet-grid">
-              <div class="bet-description"><%= bet.formatted_description %></div>
+              <div class="bet-description">
+                <%= sport_icon(bet.dk_game, bet.result) %>
+                <%= bet.formatted_description %>
+              </div>
               <div class="bet-line"><%= bet.formatted_line %></div>
               <div class="bet-stake"><%= format_currency(bet.total_stake) %></div>
               <div class="bet-outcome <%= bet.result %>">
@@ -110,7 +116,6 @@
     text-decoration: none;
     color: inherit;
     display: block;
-    margin-bottom: 8px;
     transition: transform 0.2s;
   }
 
@@ -145,8 +150,23 @@
   .user-rank {
     font-size: 18px;
     font-weight: bold;
-    color: #4d9640;
+    color: #555;
     min-width: 35px;
+  }
+
+  .user-rank.rank-1 {
+    color: #FFD700;
+    font-size: 20px;
+  }
+
+  .user-rank.rank-2 {
+    color: #C0C0C0;
+    font-size: 19px;
+  }
+
+  .user-rank.rank-3 {
+    color: #CD7F32;
+    font-size: 19px;
   }
 
   .user-name {
@@ -181,15 +201,21 @@
   .bet-item {
     background: #1a1a1a;
     border-radius: 8px;
-    padding: 8px;
-    margin-bottom: 8px;
+    padding: 4px;
+    margin-top: 8px;
   }
 
   .bet-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 0.8fr 1fr;
+    grid-template-columns: 8fr 2fr 2fr 3fr;
+    padding: 4px;
     gap: 16px;
     align-items: center;
+  }
+
+  .bet-commence-time {
+    font-size: 11px;
+    color: #666;
   }
 
   .bet-description {
@@ -197,8 +223,30 @@
     color: white;
   }
 
-  .bet-line {
+  .sport-icon {
+    font-size: 14px;
+    margin-right: 2px;
+    vertical-align: middle;
+  }
+
+  .sport-icon-pending {
+    color: #888;
+  }
+
+  .sport-icon-win {
     color: #4d9640;
+  }
+
+  .sport-icon-loss {
+    color: #d32f2f;
+  }
+
+  .sport-icon-push {
+    color: #ff9800;
+  }
+
+  .bet-line {
+    color: #888;
     font-size: 14px;
     text-align: right;
   }

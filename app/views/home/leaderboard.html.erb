@@ -13,13 +13,40 @@
             </div>
             <div class="user-section">
               <div class="user-name"><%= entry[:user].display_name %></div>
-              <div class="user-stats">
-                <span class="winnings <%= entry[:winnings] > 0 ? 'positive' : entry[:winnings] < 0 ? 'negative' : '' %>">
-                  <%= format_currency(entry[:winnings]) %> won
-                </span>
-                <span class="stake">
-                  <%= format_currency(entry[:stake]) %> bet
-                </span>
+
+              <div class="stats-section">
+                <div class="total-stats">
+                  <div class="total-winnings <%= entry[:winnings] > 0 ? 'positive' : entry[:winnings] < 0 ? 'negative' : '' %>">
+                    <%= format_currency(entry[:winnings]) %>
+                  </div>
+                </div>
+
+                <% if entry[:nfl_stake] > 0 || entry[:nfl_winnings] != 0 || entry[:ncaaf_stake] > 0 || entry[:ncaaf_winnings] != 0 %>
+                  <div class="sport-splits">
+                    <% if entry[:nfl_stake] > 0 || entry[:nfl_winnings] != 0 %>
+                      <div class="split-item">
+                        <i class="fa-solid fa-shield sport-split-icon"></i>
+                        <div class="split-stats">
+                          <span class="split-won <%= entry[:nfl_winnings] > 0 ? 'positive' : entry[:nfl_winnings] < 0 ? 'negative' : '' %>">
+                            <%= format_currency(entry[:nfl_winnings]) %>
+                          </span>
+                          <span class="split-bet"><%= format_currency(entry[:nfl_stake]) %></span>
+                        </div>
+                      </div>
+                    <% end %>
+                    <% if entry[:ncaaf_stake] > 0 || entry[:ncaaf_winnings] != 0 %>
+                      <div class="split-item">
+                        <i class="fa-solid fa-football sport-split-icon"></i>
+                        <div class="split-stats">
+                          <span class="split-won <%= entry[:ncaaf_winnings] > 0 ? 'positive' : entry[:ncaaf_winnings] < 0 ? 'negative' : '' %>">
+                            <%= format_currency(entry[:ncaaf_winnings]) %>
+                          </span>
+                          <span class="split-bet"><%= format_currency(entry[:ncaaf_stake]) %></span>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
               </div>
             </div>
           </div>
@@ -116,29 +143,74 @@
     font-size: 18px;
     font-weight: bold;
     color: white;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
   }
 
-  .user-stats {
+  .stats-section {
     display: flex;
-    gap: 16px;
-    font-size: 14px;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .winnings {
+  .total-stats {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+  }
+
+  .total-winnings {
     font-weight: bold;
+    font-size: 24px;
+    color: white;
   }
 
-  .winnings.positive {
+  .total-winnings.positive {
     color: #4d9640;
   }
 
-  .winnings.negative {
+  .total-winnings.negative {
     color: #d32f2f;
   }
 
-  .stake {
+  .sport-splits {
+    display: flex;
+    gap: 12px;
+  }
+
+  .split-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .sport-split-icon {
+    font-size: 16px;
     color: #888;
+    flex-shrink: 0;
+  }
+
+  .split-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+  }
+
+  .split-won {
+    font-weight: bold;
+  }
+
+  .split-won.positive {
+    color: #4d9640;
+  }
+
+  .split-won.negative {
+    color: #d32f2f;
+  }
+
+  .split-bet {
+    color: #666;
+    font-size: 11px;
   }
 
   .empty-state {

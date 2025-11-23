@@ -1,14 +1,21 @@
 <div class="bet-card">
   <div class="betting-grid">
     <!-- Labels Column -->
-    <div class="bet-commence-time">
-      <% formatted_time = format_bet_commence_time(bet[:date]) %>
-      <% if formatted_time %>
-        <div class="bet-date"><%= formatted_time[:date] %></div>
-        <div class="bet-time"><%= formatted_time[:time] %></div>
+    <div class="bet-commence-time-wrapper">
+      <% if bet[:is_nfl] %>
+        <i class="fa-solid fa-shield bet-card-sport-icon"></i>
       <% else %>
-        <%= bet[:date] %>
+        <i class="fa-solid fa-football bet-card-sport-icon"></i>
       <% end %>
+      <div class="bet-commence-time">
+        <% formatted_time = format_bet_commence_time(bet[:date]) %>
+        <% if formatted_time %>
+          <div class="bet-date"><%= formatted_time[:date] %></div>
+          <div class="bet-time"><%= formatted_time[:time] %></div>
+        <% else %>
+          <%= bet[:date] %>
+        <% end %>
+      </div>
     </div>
     <div class="bet-label">spread</div>
     <div class="bet-label">totals</div>

@@ -47,17 +47,21 @@
 <% if current_user.admin? %>
   <div class="admin-section">
     <h2>Admin: Manage Bet Results</h2>
-    
+
     <div class="admin-actions">
       <button id="placeLiamsBet" class="place-liams-bet-btn">
         Place Liams Bet
       </button>
+      <button id="refreshGamesBtn" class="refresh-games-btn">
+        <span class="refresh-text">Refresh Odds</span>
+        <span class="refresh-spinner hidden">⟳</span>
+      </button>
     </div>
-    
-    <% betting_histories = BettingHistory.includes(:user, :dk_game).order(created_at: :desc) %>
+
+    <% betting_histories = BettingHistory.includes(:user, :dk_game).left_joins(:dk_game).order(Arel.sql('dk_games.commence_time ASC NULLS LAST, betting_histories.created_at DESC')) %>
     <% pending_count = betting_histories.pending.count %>
     <% all_count = betting_histories.count %>
-    
+
     <div class="filter-toggle">
       <button class="filter-btn active" data-filter="pending">
         Pending Only (<span id="pendingCount"><%= pending_count %></span>)
@@ -70,10 +74,16 @@
     <% if betting_histories.any? %>
       <div class="bets-management">
         <% betting_histories.each do |bet| %>
-          <div class="bet-management-item" data-result="<%= bet.result %>">
+          <div class="bet-management-item" data-result="<%= bet.result %>" data-commence-time="<%= bet.dk_game&.commence_time&.to_i || 0 %>">
             <div class="bet-info">
               <div class="bet-user-name"><%= bet.user.display_name %></div>
-              <div class="bet-description"><%= bet.formatted_description %></div>
+              <div class="bet-description">
+                <% if bet.dk_game&.commence_time %>
+                  <span class="bet-commence-compact"><%= format_bet_commence_time_compact(bet.dk_game.commence_time) %></span>
+                <% end %>
+                <%= sport_icon(bet.dk_game, bet.result) %>
+                <%= bet.formatted_description %>
+              </div>
               <div class="bet-meta">
                 <span class="bet-week">Week <%= bet.nfl_week %></span>
                 <span class="bet-stake"><%= format_currency(bet.total_stake) %></span>
@@ -91,7 +101,7 @@
           </div>
         <% end %>
       </div>
-      
+
       <div id="noPendingMessage" class="empty-state hidden">
         No pending bets. All bets have been resolved.
       </div>
@@ -234,13 +244,12 @@
 
   .admin-actions {
     margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
   }
 
-  .admin-actions {
-    margin-bottom: 20px;
-  }
-
-  .place-liams-bet-btn {
+  .place-liams-bet-btn,
+  .refresh-games-btn {
     padding: 12px 24px;
     background: #4d9640;
     color: white;
@@ -250,15 +259,31 @@
     font-size: 14px;
     font-weight: bold;
     transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
   }
 
-  .place-liams-bet-btn:hover {
+  .place-liams-bet-btn:hover,
+  .refresh-games-btn:hover:not(:disabled) {
     background: #5db04f;
   }
 
-  .place-liams-bet-btn:disabled {
+  .place-liams-bet-btn:disabled,
+  .refresh-games-btn:disabled {
     background: #666;
     cursor: not-allowed;
+  }
+
+  .refresh-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   .filter-toggle {
@@ -336,6 +361,34 @@
     margin-bottom: 8px;
   }
 
+  .bet-commence-compact {
+    font-size: 12px;
+    color: #666;
+    margin-right: 8px;
+  }
+
+  .sport-icon {
+    font-size: 14px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .sport-icon-pending {
+    color: #888;
+  }
+
+  .sport-icon-win {
+    color: #4d9640;
+  }
+
+  .sport-icon-loss {
+    color: #d32f2f;
+  }
+
+  .sport-icon-push {
+    color: #ff9800;
+  }
+
   .bet-meta {
     display: flex;
     gap: 12px;
@@ -377,11 +430,11 @@
       placeLiamsBetBtn.addEventListener('click', function() {
         const button = this;
         const originalText = button.textContent;
-        
+
         // Disable button and show loading state
         button.disabled = true;
         button.textContent = 'Placing Bet...';
-        
+
         fetch('/admin/place_liams_bet', {
           method: 'POST',
           headers: {
@@ -405,6 +458,52 @@
           // Re-enable button and restore text
           button.disabled = false;
           button.textContent = originalText;
+        });
+      });
+    }
+
+    // Refresh Games button handler
+    const refreshGamesBtn = document.getElementById('refreshGamesBtn');
+    if (refreshGamesBtn) {
+      refreshGamesBtn.addEventListener('click', function() {
+        const refreshText = this.querySelector('.refresh-text');
+        const refreshSpinner = this.querySelector('.refresh-spinner');
+
+        // Disable button and show spinner
+        this.disabled = true;
+        refreshText.textContent = 'Updating...';
+        refreshSpinner.classList.remove('hidden');
+
+        fetch('/admin/refresh_games', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success feedback
+            refreshText.textContent = 'Updated!';
+            refreshSpinner.classList.add('hidden');
+
+            // Reload the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          } else {
+            throw new Error(data.errors ? data.errors.join(', ') : 'Update failed');
+          }
+        })
+        .catch(error => {
+          console.error('Error refreshing games:', error);
+          alert('Error refreshing games: ' + error.message);
+
+          // Reset button
+          refreshText.textContent = 'Refresh Odds';
+          refreshSpinner.classList.add('hidden');
+          this.disabled = false;
         });
       });
     }

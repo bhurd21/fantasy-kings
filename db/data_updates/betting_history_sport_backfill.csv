@@ -1,0 +1,174 @@
+id,bet_description,is_nfl
+184,PHI Eagles -8.5,"1"
+185,Iowa State -3,"0"
+186,DAL Cowboys +8.5,"1"
+187,Ole Miss -9.5,"0"
+188,Maryland -16.5,"0"
+189,Duke ML,"0"
+190,MIA Dolphins ML,"1"
+191,Over 46.5 GB vs DET,"1"
+192,Over 65.5 Baylor vs SMU,"0"
+193,DET Lions ML,"1"
+194,DEN Broncos -8.5,"1"
+195,DEN Broncos -8.5,"1"
+196,WAS Commanders +3.5,"1"
+197,Oregon -27.5,"0"
+198,Oregon -27.5,"0"
+199,JAX Jaguars ML,"1"
+200,Washington State +5.5,"0"
+201,Northwestern +26.5,"0"
+202,LSU -7,"0"
+203,Texas A&M +6.5,"0"
+204,Georgia -3.5,"0"
+205,Virginia Tech -5.5,"0"
+206,NE Patriots ML,"1"
+207,TEN Titans +5.5,"1"
+208,PHI Eagles -1.5,"1"
+209,DET Lions ML,"1"
+210,KC Chiefs +1.5,"1"
+211,MIN Vikings -3.5,"1"
+212,TB Buccaneers ML,"1"
+213,LA Chargers ML,"1"
+214,Texas Tech ML,"0"
+215,Utah -3.5,"0"
+216,Miami Florida -7.5,"0"
+217,Texas Tech ML,"0"
+218,Syracuse +17.5,"0"
+219,North Texas -2.5,"0"
+220,Oregon -33.5,"0"
+221,Nebraska -0.5,"0"
+222,DET Lions ML,"1"
+223,Drake +17,"0"
+224,Illinois ML,"0"
+225,GB Packers ML,"1"
+226,CIN Bengals +3,"1"
+227,HOU Texans ML,"1"
+228,LA Chargers -2.5,"1"
+229,GB Packers -8.5,"1"
+230,PHI Eagles -3.5,"1"
+231,WAS Commanders -2.5,"1"
+232,CLE Browns +8.5,"1"
+233,NY Giants +6,"1"
+234,DET Lions ML,"1"
+235,Oregon ML,"0"
+236,Penn State ML,"0"
+237,Georgia Tech -13.5,"0"
+238,WAS Commanders ML,"1"
+239,KC Chiefs ML,"1"
+240,DET Lions ML,"1"
+241,DET Lions ML,"1"
+242,IND Colts ML,"1"
+243,CHI Bears +1.5,"1"
+244,DET Lions ML,"1"
+245,Illinois -7.5,"0"
+246,California ML,"0"
+247,Over 62.5 Boise State v ND,"0"
+248,Illinois -7.5,"0"
+249,Iowa State ML,"0"
+250,Maryland ML,"0"
+251,Iowa State ML,"0"
+252,Alabama -12.5,"0"
+253,Florida State ML,"0"
+254,Miami FL -3.5,"0"
+255,NO Saints ML,"1"
+256,WAS Commanders ML,"1"
+257,DAL Cowboys +1.5,"1"
+258,DEN Broncos +4.5,"1"
+259,DAL Cowboys ML,"1"
+260,Over 49.5 NE Pats vs BUF Bills,"1"
+261,Oregon -7,"0"
+262,Nebraska -6.5,"0"
+263,Ohio State -14.5,"0"
+264,Maryland ML,"0"
+265,Maryland ML,"0"
+266,TEN Titans ML,"1"
+267,BAL Ravens ML,"1"
+268,DET Lions ML,"1"
+269,CLE Browns ML,"1"
+270,Georgia Tech ML,"0"
+271,Maryland ML,"0"
+272,Michigan State +27.5,"0"
+273,Under 59.5 USC vs ND,"0"
+274,Indiana -27.5,"0"
+275,Alabama -9.5,"0"
+276,Notre Dame -10.5,"0"
+277,USC ML,"0"
+278,DET Lions ML,"1"
+279,NY Giants ML,"1"
+280,NO Saints +3.5,"1"
+281,IND Colts +2.5,"1"
+282,WAS Commanders ML,"1"
+283,Over 53.5 Bucs vs Lions,"1"
+284,MIN Vikings ML,"1"
+285,UCLA +26.5,"0"
+286,BYU ML,"0"
+287,Michigan State +14,"0"
+288,South Dakota State ML,"0"
+289,Ole Miss ML,"0"
+290,Minnesota ML,"0"
+291,South Dakota State ML,"0"
+292,Chicago Bears +2.5,TRUE
+293,Tennessee Titans ML,TRUE
+294,Chicago Bears ML,TRUE
+295,Green Bay Packers -2.5,TRUE
+296,O 51.5 Dallas Cowboys vs Denver Broncos,TRUE
+297,Utah Utes -10.5,FALSE
+298,New Mexico Lobos +4.0,FALSE
+299,O 66.5 Navy Midshipmen vs North Texas Mean Green,FALSE
+300,Tennessee Volunteers -2.5,FALSE
+301,O 44.5 Penn State Nittany Lions vs Ohio State Buckeyes,FALSE
+302,Vanderbilt Commodores ML,FALSE
+303,USC Trojans -4.5,FALSE
+304,Navy Midshipmen ML,FALSE
+305,Tennessee Volunteers -2.5,FALSE
+306,Detroit Lions ML,TRUE
+307,Cincinnati Bengals ML,TRUE
+308,New England Patriots -5.5,TRUE
+309,O 50.5 Indianapolis Colts vs Pittsburgh Steelers,TRUE
+310,New England Patriots -5.5,TRUE
+311,Denver Broncos ML,TRUE
+312,Florida State Seminoles +1.5,FALSE
+313,Mississippi State Bulldogs ML,FALSE
+314,Indiana Hoosiers -14.5,FALSE
+315,BYU Cougars +10.5,FALSE
+316,Maryland Terrapins ML,FALSE
+317,Alabama Crimson Tide -10.5,FALSE
+318,Maryland Terrapins +1.5,FALSE
+319,Mississippi State Bulldogs ML,FALSE
+320,Indiana Hoosiers -14.5,FALSE
+321,Maryland Terrapins ML,FALSE
+322,Texas Tech Red Raiders -11.5,FALSE
+323,Oregon Ducks -5.5,FALSE
+324,UCLA Bruins -1.5,FALSE
+325,Alabama Crimson Tide -10.0,FALSE
+326,Detroit Lions ML,TRUE
+327,Indianapolis Colts ML,TRUE
+328,New England Patriots ML,TRUE
+329,Minnesota Vikings +3.5,TRUE
+330,New England Patriots ML,TRUE
+331,Coastal Carolina Chanticleers +2.5,FALSE
+332,Alabama Crimson Tide -6.0,FALSE
+333,UAB Blazers +18.5,FALSE
+334,Alabama Crimson Tide ML,FALSE
+335,Tampa Bay Buccaneers ML,TRUE
+336,Penn State Nittany Lions -7.0,FALSE
+337,UCF Knights +23.5,FALSE
+338,Purdue Boilermakers +16.5,FALSE
+339,North Carolina Tar Heels +4.5,FALSE
+340,Mississippi State Bulldogs ML,FALSE
+341,Arkansas Razorbacks ML,FALSE
+342,Memphis Tigers ML,FALSE
+343,Florida Gators ML,FALSE
+344,Alabama Crimson Tide -6.5,FALSE
+345,Georgia Bulldogs -6.0,FALSE
+346,Detroit Lions ML,TRUE
+347,Seattle Seahawks ML,TRUE
+348,Kansas City Chiefs -4.5,TRUE
+349,Iowa State Cyclones ML,FALSE
+350,Western Kentucky Hilltoppers +22.5,FALSE
+351,Tennessee Volunteers -3.5,FALSE
+352,Penn State Nittany Lions -7.5,FALSE
+353,Kansas Jayhawks +3.5,FALSE
+354,Washington State Cougars ML,FALSE
+355,Maryland Terrapins ML,FALSE
+356,Cincinnati Bearcats ML,FALSE

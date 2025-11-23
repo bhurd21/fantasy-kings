@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_30_035856) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_23_011351) do
   create_table "betting_histories", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "dk_game_id"
@@ -24,7 +24,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_035856) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_nfl"
     t.index ["dk_game_id"], name: "index_betting_histories_on_dk_game_id"
+    t.index ["is_nfl"], name: "index_betting_histories_on_is_nfl"
     t.index ["nfl_week"], name: "index_betting_histories_on_nfl_week"
     t.index ["result"], name: "index_betting_histories_on_result"
     t.index ["user_id", "created_at"], name: "index_betting_histories_on_user_id_and_created_at"

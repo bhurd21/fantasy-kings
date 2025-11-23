@@ -52,4 +52,26 @@ class User < ApplicationRecord
   def has_nickname?
     nickname.present?
   end
+
+  # NFL specific stats
+  def nfl_wagered(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    scope.where(is_nfl: true).sum(:total_stake)
+  end
+
+  def nfl_winnings(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    scope.where(is_nfl: true).sum(&:winnings)
+  end
+
+  # NCAA specific stats
+  def ncaaf_wagered(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    scope.where(is_nfl: false).sum(:total_stake)
+  end
+
+  def ncaaf_winnings(week = nil)
+    scope = week ? betting_histories.where(nfl_week: week) : betting_histories
+    scope.where(is_nfl: false).sum(&:winnings)
+  end
 end

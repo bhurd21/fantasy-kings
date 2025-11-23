@@ -59,6 +59,36 @@
         <div class="stat-value"><%= format_currency(@season_spent) %></div>
       </div>
     </div>
+    <% nfl_winnings = @user.nfl_winnings %>
+    <% nfl_stake = @user.nfl_wagered %>
+    <% ncaaf_winnings = @user.ncaaf_winnings %>
+    <% ncaaf_stake = @user.ncaaf_wagered %>
+    <% if nfl_stake > 0 || nfl_winnings != 0 || ncaaf_stake > 0 || ncaaf_winnings != 0 %>
+      <div class="sport-splits-row">
+        <% if nfl_stake > 0 || nfl_winnings != 0 %>
+          <div class="split-stat">
+            <i class="fa-solid fa-shield split-icon"></i>
+            <div class="split-values">
+              <div class="stat-label">NFL Won</div>
+              <div class="stat-value <%= nfl_winnings >= 0 ? 'positive' : 'negative' %>">
+                <%= format_currency(nfl_winnings) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <% if ncaaf_stake > 0 || ncaaf_winnings != 0 %>
+          <div class="split-stat">
+            <i class="fa-solid fa-football split-icon"></i>
+            <div class="split-values">
+              <div class="stat-label">NCAA Won</div>
+              <div class="stat-value <%= ncaaf_winnings >= 0 ? 'positive' : 'negative' %>">
+                <%= format_currency(ncaaf_winnings) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>
 
@@ -80,7 +110,11 @@
         <% bets.each do |bet| %>
           <div class="bet-item">
             <div class="bet-grid">
-              <div class="bet-description"><%= bet.formatted_description %></div>
+
+              <div class="bet-description">
+                <%= sport_icon(bet.dk_game, bet.result) %>
+                <%= bet.formatted_description %>
+              </div>
               <div class="bet-line"><%= bet.formatted_line %></div>
               <div class="bet-stake"><%= format_currency(bet.total_stake) %></div>
               <div class="bet-outcome <%= bet.result %>">
@@ -225,6 +259,32 @@
     color: #d32f2f;
   }
 
+  .sport-splits-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+  }
+
+  .split-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .split-icon {
+    font-size: 16px;
+    color: #888;
+    flex-shrink: 0;
+  }
+
+  .split-values {
+    display: flex;
+    flex-direction: column;
+  }
+
   .history-section {
     padding-left: 16px;
     padding-right: 16px;
@@ -354,7 +414,7 @@
 
   .bet-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 0.8fr 1fr;
+    grid-template-columns: 8fr 2fr 2fr 3fr;
     gap: 16px;
     align-items: center;
   }
@@ -365,9 +425,31 @@
   }
 
   .bet-line {
-    color: #4d9640;
+    color: #888;
     font-size: 14px;
     text-align: right;
+  }
+
+  .sport-icon {
+    font-size: 14px;
+    margin-right: 2px;
+    vertical-align: middle;
+  }
+
+  .sport-icon-pending {
+    color: #888;
+  }
+
+  .sport-icon-win {
+    color: #4d9640;
+  }
+
+  .sport-icon-loss {
+    color: #d32f2f;
+  }
+
+  .sport-icon-push {
+    color: #ff9800;
   }
 
   .bet-stake {

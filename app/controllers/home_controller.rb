@@ -28,7 +28,8 @@ class HomeController < ApplicationController
         under_odds: format_odds(game.under_price),
         home_moneyline: format_odds(game.home_moneyline),
         away_moneyline: format_odds(game.away_moneyline),
-        update_time: game.bookmaker_last_update
+        update_time: game.bookmaker_last_update,
+        is_nfl: game.nfl?
       }
     end
   end
@@ -82,7 +83,8 @@ class HomeController < ApplicationController
       bet_type: bet_type,
       line_value: line_value,
       total_stake: stake,
-      result: :pending
+      result: :pending,
+      is_nfl: game.nfl?
     )
     
     # Check weekly budget
@@ -111,16 +113,15 @@ class HomeController < ApplicationController
                                        .where(nfl_week: @week)
                                        .where.not(users: { role: :viewer })
                                        .order(created_at: :desc)
-    
+
     # Group betting histories by user
     @user_bets = @betting_histories.group_by(&:user)
-    
-    # Sort bets within each user group by result order: Win, Pending, Push, Loss
-    result_order = { 'win' => 1, 'push' => 2, 'pending' => 3, 'loss' => 4 }
+
+    # Sort bets within each user group by commence time descending (soonest game first)
     @user_bets.each do |user, bets|
-      @user_bets[user] = bets.sort_by { |bet| result_order[bet.result] || 5 }
+      @user_bets[user] = bets.sort_by { |bet| bet.dk_game&.commence_time || Time.current }.reverse
     end
-    
+
     # Calculate stats for each user and sort by winnings desc
     @user_stats = {}
     @user_bets.each do |user, bets|
@@ -129,7 +130,7 @@ class HomeController < ApplicationController
         total_winnings: bets.sum(&:winnings)
       }
     end
-    
+
     # Sort users by winnings (descending)
     @user_bets = @user_bets.sort_by { |user, _| -@user_stats[user.id][:total_winnings] }.to_h
   end
@@ -194,17 +195,21 @@ class HomeController < ApplicationController
 
   def leaderboard
     # Get all users with their betting histories (exclude viewers)
-    users = User.includes(:betting_histories).where.not(role: :viewer)
-    
+    users = User.includes(betting_histories: :dk_game).where.not(role: :viewer)
+
     # Calculate stats for each user
     @leaderboard = users.map do |user|
       {
         user: user,
         winnings: user.total_winnings,
-        stake: user.total_wagered
+        stake: user.total_wagered,
+        nfl_winnings: user.nfl_winnings,
+        nfl_stake: user.nfl_wagered,
+        ncaaf_winnings: user.ncaaf_winnings,
+        ncaaf_stake: user.ncaaf_wagered
       }
     end
-    
+
     # Sort by winnings descending
     @leaderboard.sort_by! { |entry| -entry[:winnings] }
   end
@@ -303,7 +308,8 @@ class HomeController < ApplicationController
         bet_type: bet_type,
         line_value: line_value.to_s,
         total_stake: 10.0,
-        result: :pending
+        result: :pending,
+        is_nfl: lions_game.nfl?
       )
 
       render json: { 

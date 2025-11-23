@@ -34,15 +34,23 @@ module HomeHelper
     cst_time.strftime('%a %-l:%M%p')
   end
 
-  def sport_icon(game, result = 'pending')
-    return '' unless game
-
-    icon_class = if game.nfl?
-      'fa-shield'
-    elsif game.ncaaf?
-      'fa-football'
+  def sport_icon(game, result = 'pending', bet = nil)
+    # Determine sport from game or betting history
+    is_nfl = nil
+    if game
+      is_nfl = game.nfl?
+    elsif bet&.respond_to?(:is_nfl)
+      is_nfl = bet.is_nfl
     else
       return ''
+    end
+
+    return '' if is_nfl.nil?
+
+    icon_class = if is_nfl
+      'fa-shield'
+    else
+      'fa-football'
     end
 
     color_class = case result.to_s

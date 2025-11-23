@@ -81,7 +81,7 @@
                 <% if bet.dk_game&.commence_time %>
                   <span class="bet-commence-compact"><%= format_bet_commence_time_compact(bet.dk_game.commence_time) %></span>
                 <% end %>
-                <%= sport_icon(bet.dk_game, bet.result) %>
+                <%= sport_icon(bet.dk_game, bet.result, bet) %>
                 <%= bet.formatted_description %>
               </div>
               <div class="bet-meta">

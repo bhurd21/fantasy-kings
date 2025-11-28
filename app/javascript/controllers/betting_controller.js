@@ -1,16 +1,16 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "betDescription", "stakeInput", "selectedBet", "budgetInfo", 
+  static targets = ["modal", "betDescription", "stakeInput", "selectedBet", "budgetInfo",
                      "weeklyBudget", "budgetUsed", "budgetRemaining", "stakeError", "confirmButton", "currentWeek",
-                     "selectedOdds", "potentialWinnings", "winningsAmount", "totalPayout"]
-  
+                     "selectedOdds", "potentialWinnings", "winningsAmount", "totalPayout",
+                     "searchInput", "clearButton", "ncaafButton", "nflButton"]
+
   connect() {
-    console.log("Betting controller connected")
     this.currentWeek = this.calculateCurrentWeek()
-    console.log(`Calculated current week: ${this.currentWeek}`)
     this.minBet = 1
     this.maxBet = 9
+    this.activeLeagueFilter = null
   }
   
   async selectBet(event) {
@@ -43,17 +43,14 @@ export default class extends Controller {
   
   async loadBudgetInfo() {
     try {
-      console.log(`Fetching budget for week: ${this.currentWeek}`)
       const response = await fetch(`/weekly_budget/${this.currentWeek}`)
       const data = await response.json()
-      
-      console.log('Budget data received:', data)
-      
+
       this.currentWeekTarget.textContent = data.week
       this.weeklyBudgetTarget.textContent = `$${data.budget.toFixed(2)}`
       this.budgetUsedTarget.textContent = `$${data.used.toFixed(2)}`
       this.budgetRemainingTarget.textContent = `$${data.remaining.toFixed(2)}`
-      
+
       this.budgetRemaining = data.remaining
       this.minBet = data.min_bet
       this.maxBet = data.max_bet
@@ -144,7 +141,7 @@ export default class extends Controller {
   calculateCurrentWeek() {
     const currentDate = new Date()
     const year = currentDate.getFullYear()
-    
+
     // Weeks will change on Tuesday at 3 AM EST
     const seasonStart = new Date(year, 8, 2, 3, 0, 0) // September 2, 3:00 AM
 
@@ -152,5 +149,64 @@ export default class extends Controller {
     const daysSinceStart = Math.floor(hoursSinceStart / 24)
     const week = Math.floor(daysSinceStart / 7) + 1
     return Math.max(1, Math.min(week, 24))
+  }
+
+  clearSearch() {
+    this.searchInputTarget.value = ''
+    this.clearButtonTarget.classList.add('hidden')
+    this.applyFilters()
+  }
+
+  toggleLeagueFilter(event) {
+    const button = event.currentTarget
+    const league = button.dataset.league
+
+    if (this.activeLeagueFilter === league) {
+      this.activeLeagueFilter = null
+      button.classList.remove('active')
+    } else {
+      if (this.activeLeagueFilter === 'nfl') {
+        this.nflButtonTarget.classList.remove('active')
+      } else if (this.activeLeagueFilter === 'ncaaf') {
+        this.ncaafButtonTarget.classList.remove('active')
+      }
+
+      this.activeLeagueFilter = league
+      button.classList.add('active')
+    }
+
+    this.applyFilters()
+  }
+
+  filterCards(event) {
+    const searchTerm = event.target.value.toLowerCase().trim()
+
+    if (searchTerm) {
+      this.clearButtonTarget.classList.remove('hidden')
+    } else {
+      this.clearButtonTarget.classList.add('hidden')
+    }
+
+    this.applyFilters()
+  }
+
+  applyFilters() {
+    const searchTerm = this.searchInputTarget.value.toLowerCase().trim()
+    const betCards = document.querySelectorAll('.bet-card')
+
+    betCards.forEach(card => {
+      const awayTeam = card.dataset.awayTeam?.toLowerCase() || ''
+      const homeTeam = card.dataset.homeTeam?.toLowerCase() || ''
+      const league = card.dataset.league
+
+      const matchesSearch = searchTerm === '' || awayTeam.includes(searchTerm) || homeTeam.includes(searchTerm)
+      const matchesLeague = this.activeLeagueFilter === null || league === this.activeLeagueFilter
+
+      if (matchesSearch && matchesLeague) {
+        card.style.display = ''
+      } else {
+        card.style.display = 'none'
+      }
+    })
   }
 }

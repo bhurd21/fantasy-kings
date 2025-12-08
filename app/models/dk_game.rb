@@ -1,5 +1,5 @@
 class DkGame < ApplicationRecord
-  enum :sport, { nfl: 0, ncaaf: 1 }
+  enum :sport, { nfl: 0, ncaaf: 1, ncaab: 2 }
   
   has_many :betting_histories, dependent: :nullify
 

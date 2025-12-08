@@ -4,13 +4,16 @@ export default class extends Controller {
   static targets = ["modal", "betDescription", "stakeInput", "selectedBet", "budgetInfo",
                      "weeklyBudget", "budgetUsed", "budgetRemaining", "stakeError", "confirmButton", "currentWeek",
                      "selectedOdds", "potentialWinnings", "winningsAmount", "totalPayout",
-                     "searchInput", "clearButton", "ncaafButton", "nflButton"]
+                     "searchInput", "clearButton", "ncaafButton", "nflButton", "ncaabButton"]
 
   connect() {
     this.currentWeek = this.calculateCurrentWeek()
     this.minBet = 1
     this.maxBet = 9
     this.activeLeagueFilter = null
+    // NCAAB starts in hidden state - games are filtered out by default
+    this.ncaabState = 'hidden' // 'hidden', 'active', or 'inactive'
+    this.applyFilters()
   }
   
   async selectBet(event) {
@@ -162,17 +165,50 @@ export default class extends Controller {
     const league = button.dataset.league
 
     if (this.activeLeagueFilter === league) {
+      // Toggle off if same button clicked
       this.activeLeagueFilter = null
       button.classList.remove('active')
     } else {
-      if (this.activeLeagueFilter === 'nfl') {
-        this.nflButtonTarget.classList.remove('active')
-      } else if (this.activeLeagueFilter === 'ncaaf') {
-        this.ncaafButtonTarget.classList.remove('active')
+      // Remove active from all filter buttons (except ncaab which has special handling)
+      this.element.querySelectorAll('.league-filter-button:not([data-league="ncaab"])').forEach(btn => {
+        btn.classList.remove('active')
+      })
+      
+      // Reset ncaab to hidden state when selecting another filter
+      if (this.hasNcaabButtonTarget) {
+        this.ncaabState = 'hidden'
+        this.ncaabButtonTarget.classList.remove('active')
+        this.ncaabButtonTarget.classList.add('hidden-filter')
       }
 
       this.activeLeagueFilter = league
       button.classList.add('active')
+    }
+
+    this.applyFilters()
+  }
+
+  // NCAAB has 3 states: hidden (default) -> active (only ncaab) -> inactive (all shown)
+  toggleNcaabFilter() {
+    // Clear other league filters first
+    this.activeLeagueFilter = null
+    this.element.querySelectorAll('.league-filter-button:not([data-league="ncaab"])').forEach(btn => {
+      btn.classList.remove('active')
+    })
+
+    // Cycle through states: hidden -> active -> inactive -> hidden
+    if (this.ncaabState === 'hidden') {
+      this.ncaabState = 'active'
+      this.ncaabButtonTarget.classList.remove('hidden-filter')
+      this.ncaabButtonTarget.classList.add('active')
+    } else if (this.ncaabState === 'active') {
+      this.ncaabState = 'inactive'
+      this.ncaabButtonTarget.classList.remove('active')
+      this.ncaabButtonTarget.classList.remove('hidden-filter')
+    } else {
+      this.ncaabState = 'hidden'
+      this.ncaabButtonTarget.classList.remove('active')
+      this.ncaabButtonTarget.classList.add('hidden-filter')
     }
 
     this.applyFilters()
@@ -200,7 +236,20 @@ export default class extends Controller {
       const league = card.dataset.league
 
       const matchesSearch = searchTerm === '' || awayTeam.includes(searchTerm) || homeTeam.includes(searchTerm)
-      const matchesLeague = this.activeLeagueFilter === null || league === this.activeLeagueFilter
+      
+      // Handle league filtering with special NCAAB logic
+      let matchesLeague = true
+      if (this.activeLeagueFilter !== null) {
+        // Standard filter active (nfl or ncaaf)
+        matchesLeague = league === this.activeLeagueFilter
+      } else if (this.ncaabState === 'hidden') {
+        // NCAAB is hidden by default - filter out ncaab games
+        matchesLeague = league !== 'ncaab'
+      } else if (this.ncaabState === 'active') {
+        // Only show ncaab games
+        matchesLeague = league === 'ncaab'
+      }
+      // ncaabState === 'inactive' means show all (matchesLeague stays true)
 
       if (matchesSearch && matchesLeague) {
         card.style.display = ''

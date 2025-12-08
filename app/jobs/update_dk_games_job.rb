@@ -9,7 +9,8 @@ class UpdateDkGamesJob < ApplicationJob
   BASE_URL = "https://api.the-odds-api.com/v4/sports".freeze
   SPORTS = {
     'nfl' => 'americanfootball_nfl',
-    'ncaaf' => 'americanfootball_ncaaf'
+    'ncaaf' => 'americanfootball_ncaaf',
+    'ncaab' => 'basketball_ncaab'
   }.freeze
 
   def perform
@@ -57,7 +58,14 @@ class UpdateDkGamesJob < ApplicationJob
     }
     uri.query = URI.encode_www_form(params)
 
-    response = Net::HTTP.get_response(uri)
+    # Make HTTP request
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    # Use strict SSL verification in production, relaxed in development/test
+    http.verify_mode = Rails.env.production? ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
+    
+    request = Net::HTTP::Get.new(uri)
+    response = http.request(request)
     
     unless response.code == '200'
       Rails.logger.error "Failed to get #{sport} odds: #{response.code}"
@@ -212,6 +220,7 @@ class UpdateDkGamesJob < ApplicationJob
     case sport_value&.downcase
     when 'nfl' then 'nfl'
     when 'ncaaf' then 'ncaaf'
+    when 'ncaab' then 'ncaab'
     else nil
     end
   end

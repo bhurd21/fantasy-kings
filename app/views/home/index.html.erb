@@ -36,6 +36,14 @@
               data-betting-target="clearButton">×</button>
     </div>
     <button type="button"
+            class="league-filter-button hidden-filter"
+            data-league="ncaab"
+            data-action="click->betting#toggleNcaabFilter"
+            data-betting-target="ncaabButton"
+            title="NCAAB">
+      <i class="fa-solid fa-basketball"></i>
+    </button>
+    <button type="button"
             class="league-filter-button"
             data-league="ncaaf"
             data-action="click->betting#toggleLeagueFilter"
@@ -224,6 +232,14 @@
     background: #4d9640;
     border-color: #4d9640;
     color: white;
+  }
+
+  /* Basketball button hidden state - games are filtered out by default */
+  .league-filter-button.hidden-filter {
+    background: #1a1a1a;
+    border: 2px dashed #444;
+    color: #555;
+    opacity: 0.6;
   }
 
   .hidden {

@@ -1,9 +1,11 @@
-<div class="bet-card" data-away-team="<%= bet[:away_team] %>" data-home-team="<%= bet[:home_team] %>" data-league="<%= bet[:is_nfl] ? 'nfl' : 'ncaaf' %>">
+<div class="bet-card<%= ' bet-card-disabled' if bet[:is_ncaab] %>" data-away-team="<%= bet[:away_team] %>" data-home-team="<%= bet[:home_team] %>" data-league="<%= bet[:sport] %>">
   <div class="betting-grid">
     <!-- Labels Column -->
     <div class="bet-commence-time-wrapper">
       <% if bet[:is_nfl] %>
         <i class="fa-solid fa-shield bet-card-sport-icon"></i>
+      <% elsif bet[:is_ncaab] %>
+        <i class="fa-solid fa-basketball bet-card-sport-icon"></i>
       <% else %>
         <i class="fa-solid fa-football bet-card-sport-icon"></i>
       <% end %>
@@ -28,21 +30,24 @@
       bet_type: 'away_spread',
       value: bet[:away_spread],
       odds: bet[:away_spread_odds],
-      label: bet[:away_spread]
+      label: bet[:away_spread],
+      disabled: bet[:is_ncaab]
     } %>
     <%= render partial: 'bet_option', locals: { 
       bet: bet, 
       bet_type: 'total_over',
       value: bet[:total],
       odds: bet[:total_odds],
-      label: "O #{bet[:total]}"
+      label: "O #{bet[:total]}",
+      disabled: bet[:is_ncaab]
     } %>
     <%= render partial: 'bet_option', locals: { 
       bet: bet, 
       bet_type: 'away_winner',
       value: bet[:away_moneyline],
       odds: bet[:away_moneyline],
-      label: nil
+      label: nil,
+      disabled: bet[:is_ncaab]
     } %>
     
     <!-- Home Options Row -->
@@ -52,21 +57,24 @@
       bet_type: 'home_spread',
       value: bet[:home_spread],
       odds: bet[:home_spread_odds],
-      label: bet[:home_spread]
+      label: bet[:home_spread],
+      disabled: bet[:is_ncaab]
     } %>
     <%= render partial: 'bet_option', locals: { 
       bet: bet, 
       bet_type: 'total_under',
       value: bet[:total],
       odds: bet[:under_odds],
-      label: "U #{bet[:total]}"
+      label: "U #{bet[:total]}",
+      disabled: bet[:is_ncaab]
     } %>
     <%= render partial: 'bet_option', locals: { 
       bet: bet, 
       bet_type: 'home_winner',
       value: bet[:home_moneyline],
       odds: bet[:home_moneyline],
-      label: nil
+      label: nil,
+      disabled: bet[:is_ncaab]
     } %>
   </div>
 </div>

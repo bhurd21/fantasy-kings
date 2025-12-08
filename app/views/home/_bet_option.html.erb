@@ -1,16 +1,26 @@
+<% disabled = local_assigns.fetch(:disabled, false) %>
 <% if value.present? %>
-  <button 
-    type="button"
-    class="bet-button" 
-    data-action="betting#selectBet"
-    data-bet-id="<%= bet[:id] %>_<%= bet_type %>"
-    data-bet-description="<%= bet[:away_team] %> @ <%= bet[:home_team] %> - <%= bet_type.humanize %> <%= label || odds %>"
-    data-bet-odds="<%= odds %>">
-    <% if label %>
-      <div class="bet-value"><%= label %></div>
-    <% end %>
-    <div class="bet-odds"><%= odds %></div>
-  </button>
+  <% if disabled %>
+    <div class="bet-button bet-button-disabled">
+      <% if label %>
+        <div class="bet-value"><%= label %></div>
+      <% end %>
+      <div class="bet-odds"><%= odds %></div>
+    </div>
+  <% else %>
+    <button 
+      type="button"
+      class="bet-button" 
+      data-action="betting#selectBet"
+      data-bet-id="<%= bet[:id] %>_<%= bet_type %>"
+      data-bet-description="<%= bet[:away_team] %> @ <%= bet[:home_team] %> - <%= bet_type.humanize %> <%= label || odds %>"
+      data-bet-odds="<%= odds %>">
+      <% if label %>
+        <div class="bet-value"><%= label %></div>
+      <% end %>
+      <div class="bet-odds"><%= odds %></div>
+    </button>
+  <% end %>
 <% else %>
   <div class="bet-button-placeholder">
     <div class="bet-dash">—</div>

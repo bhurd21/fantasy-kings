@@ -29,7 +29,9 @@ class HomeController < ApplicationController
         home_moneyline: format_odds(game.home_moneyline),
         away_moneyline: format_odds(game.away_moneyline),
         update_time: game.bookmaker_last_update,
-        is_nfl: game.nfl?
+        is_nfl: game.nfl?,
+        is_ncaab: game.ncaab?,
+        sport: game.sport
       }
     end
   end

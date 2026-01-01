@@ -68,16 +68,15 @@ class BettingHistory < ApplicationRecord
   def calculate_current_nfl_week
     # NFL season typically starts first Sunday after Labor Day (around Sept 1)
     current_date = Date.current
-    year = current_date.year
-    
-    # NFL season start (September 3rd)
-    season_start = Date.new(year, 9, 3)
-    
+
+    # NFL season start (September 2, 2025)
+    season_start = Date.new(2025, 9, 3)
+
     # Calculate week number
     days_since_start = (current_date - season_start).to_i
     week = (days_since_start / 7.0).floor + 1
-    
-    # Clamp between 1 and 24
-    [[week, 1].max, 24].min
+
+    # Clamp between 1 and 28
+    [[week, 1].max, 28].min
   end
 end

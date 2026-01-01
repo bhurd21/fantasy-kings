@@ -143,15 +143,14 @@ export default class extends Controller {
   
   calculateCurrentWeek() {
     const currentDate = new Date()
-    const year = currentDate.getFullYear()
 
     // Weeks will change on Tuesday at 3 AM EST
-    const seasonStart = new Date(year, 8, 2, 3, 0, 0) // September 2, 3:00 AM
+    const seasonStart = new Date(2025, 8, 2, 3, 0, 0) // September 2, 2025, 3:00 AM
 
     const hoursSinceStart = Math.floor((currentDate - seasonStart) / (1000 * 60 * 60))
     const daysSinceStart = Math.floor(hoursSinceStart / 24)
     const week = Math.floor(daysSinceStart / 7) + 1
-    return Math.max(1, Math.min(week, 24))
+    return Math.max(1, Math.min(week, 28))
   }
 
   clearSearch() {

@@ -1,7 +1,7 @@
 <div class="header">
   <h1>Week <%= @week %></h1>
   <select id="weekSelector" class="week-selector">
-    <% (1..18).each do |week_num| %>
+    <% (1..28).each do |week_num| %>
       <option value="<%= week_num %>" <%= 'selected' if week_num == @week %>>Week <%= week_num %></option>
     <% end %>
   </select>

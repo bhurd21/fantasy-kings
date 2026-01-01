@@ -15,7 +15,7 @@
     <div class="card-header">
       <h2>Week <%= @selected_week %></h2>
       <select id="weekSelector" class="week-selector-small">
-        <% (1..18).each do |week_num| %>
+        <% (1..28).each do |week_num| %>
           <option value="<%= week_num %>" <%= 'selected' if week_num == @selected_week %>>Week <%= week_num %></option>
         <% end %>
       </select>
